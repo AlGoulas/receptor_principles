@@ -12,24 +12,19 @@ from sklearn.preprocessing import StandardScaler
 
 from scipy.stats import spearmanr
 from scipy.stats import rankdata
-#from scipy.stats import zscore
 
 from statsmodels.formula.api import ols
-
-#import statsmodels.api as sm
 
 import seaborn as sns
 
 import pandas as pd
 
-#For rfe and svr
 from sklearn.svm import SVR
-#from sklearn.model_selection import StratifiedKFold
+
 from sklearn.feature_selection import RFE
-#from sklearn.model_selection import train_test_split
-#from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
-#from sklearn.model_selection import ShuffleSplit
+
+from pathlib import Path
 
 #sns.set(context='poster', style='white')
 
@@ -219,13 +214,44 @@ def RunAncova(Y, X, Covariate, filename_results):
     
     return fit 
 
+
+
+def PlotRankOrderedValues(values, labels, path_name_saved_file, title, x_label, y_label, y_min, y_max):
+    
+    #Rank order the values and the rearrange the names accordingly
+    sort_ind = np.argsort(values)
+    values = values[sort_ind]
+    labels = [labels[i] for i in sort_ind]
+    
+    #Plot
+    data = {'X':values, 'AreaNames':labels}
+    df = pd.DataFrame(data)
+    
+    fig = plt.figure()
+    fig.set_size_inches(10, 10) 
+    
+    plot = sns.barplot(y = 'X', 
+                       x = 'AreaNames',
+                       color = 'magenta', 
+                       data=df)
+    
+    plot.set_xticklabels(plot.get_xticklabels(), rotation=90)
+    plot.set(ylim=(y_min, y_max))
+    
+    plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    
+    #save figure in the spacified path with the specified name
+    #plt.figure()
+    plt.savefig(path_name_saved_file, format="svg")
+    #plot.savefig(path_name_saved_file)
+    
     
 def CustomRFE(X, Y, test_size_perc, iterations, feature_names):
     
     svr = SVR(kernel="linear", C=1.0)
-    
-    #This is not necessary and probably a bias! Check it out
-    #Y = zscore(Y)
+
     
     #Initialize variables to keep the relevant info
     size_X = X.shape
@@ -368,6 +394,11 @@ def CustomRFE(X, Y, test_size_perc, iterations, feature_names):
 
     
     
+#Path to save results - individual names of files will be appended to this path
+   
+results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/results")
+
+
 #Analyze the data     
 
 #Calculate excitation inhibition 
@@ -386,6 +417,26 @@ ExcInh_S = ExcInh_S[indexes_notzeros]
 
 RegionNames_Reduced = np.array(RegionNames)[indexes_notzeros]
 
+#Plot rank ordered exc/inh for each region and laminar compartment
+
+file_to_save = results_folder / "ExcInh_RankOrdered_I.svg"
+
+PlotRankOrderedValues(ExcInh_I, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Exc/Inh Infragranular", "", "Exc/Inh", 
+                      np.min(ExcInh_I)-0.1, np.max(ExcInh_I))
+
+file_to_save = results_folder / "ExcInh_RankOrdered_G.svg"
+
+PlotRankOrderedValues(ExcInh_G, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Exc/Inh Granular", "", "Exc/Inh", 
+                      np.min(ExcInh_G)-0.1, np.max(ExcInh_G))
+
+file_to_save = results_folder / "ExcInh_RankOrdered_S.svg"
+
+PlotRankOrderedValues(ExcInh_S, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Exc/Inh Supragranular", "", "Exc/Inh", 
+                      np.min(ExcInh_S)-0.1, np.max(ExcInh_S))
+
 #Calculate Entropy
 
 #Normalize densities per receptor
@@ -402,11 +453,30 @@ H_I = CalculateEntropy(ReceptData_Reduced_I_norm)
 H_G = CalculateEntropy(ReceptData_Reduced_G_norm)
 H_S = CalculateEntropy(ReceptData_Reduced_S_norm)
 
+
+file_to_save = results_folder / "H_RankOrdered_I.svg"
+
+PlotRankOrderedValues(H_I, RegionNames_Reduced, file_to_save,
+                      "Rank ordered regions Entropy Infragranular", "", "Entropy", 
+                      np.min(H_I)-0.01, np.max(H_I))
+
+file_to_save = results_folder / "H_RankOrdered_G.svg"
+
+PlotRankOrderedValues(H_G, RegionNames_Reduced, file_to_save,
+                      "Rank ordered regions Entropy Granular", "", "Entropy", 
+                      np.min(H_G)-0.01, np.max(H_G))
+
+file_to_save = results_folder / "H_RankOrdered_S.svg"
+
+PlotRankOrderedValues(H_S, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Entropy Supragranular", "", "Entropy", 
+                      np.min(H_S)-0.01, np.max(H_S))
+
 #H_I = CalculateEntropy(ReceptData_Reduced_I)
 #H_G = CalculateEntropy(ReceptData_Reduced_G)
 #H_S = CalculateEntropy(ReceptData_Reduced_S)
 
-#Create a list of receptor names with a prefix indicatign the layer 
+#Create a list of receptor names with a prefix indicating the layer 
 #(for PCA visualization)
 ReceptorNames_I_G_S = [ ]
 
@@ -444,7 +514,9 @@ PC1_2[:,1] = -1*PC1_2[:,1]
 
 coeff[:,1] = -1*coeff[:,1] 
 
-mybiplot(PC1_2, coeff, "results/biplot.svg", 
+file_to_save = results_folder / "biplot.svg"
+
+mybiplot(PC1_2, coeff, file_to_save, 
          RegionNames_Reduced, 
          ReceptorNames_I_G_S)
 
@@ -456,16 +528,25 @@ rho_ExcInh_I, pval_ExcInh_I = spearmanr(PC1, ExcInh_I)
 # Plot the relation between Exc/Inh and PC1
 
 #Infragranular layers
+
+file_to_save = results_folder / "ExcInh_I.svg"
+
 PlotSaveScatterPlot(PC1, ExcInh_I, RegionNames_Reduced, 
-                    "results/ExcInh_I.svg", "Infragranular Layers", "PC1", "Exc/Inh receptor density")
+                    file_to_save, "Infragranular Layers", "PC1", "Exc/Inh receptor density")
 
 #Granular layers
+
+file_to_save = results_folder / "ExcInh_G.svg"
+
 PlotSaveScatterPlot(PC1, ExcInh_G, RegionNames_Reduced, 
-                    "results/ExcInh_G.svg", "Granular Layers", "PC1", "Exc/Inh receptor density")
+                    file_to_save, "Granular Layers", "PC1", "Exc/Inh receptor density")
 
 #Supragranular layers
+
+file_to_save = results_folder / "ExcInh_S.svg"
+
 PlotSaveScatterPlot(PC1, ExcInh_S, RegionNames_Reduced, 
-                    "results/ExcInh_S.svg", "Supragranular Layers", "PC1", "Exc/Inh receptor density")
+                   file_to_save, "Supragranular Layers", "PC1", "Exc/Inh receptor density")
 
 #Run an ANCOVA model to test if the Exc/Inh and PC1 slopes are layer specific
 ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked, PC1_ranked), axis=0)
@@ -485,8 +566,10 @@ infra_index = np.asarray([3]*ExcInh_I.size)
 Layer = np.concatenate((infra_index, granular_index, supra_index), 
                               axis=0)
 
+file_to_save = results_folder / "summary_fit_ExcInh.txt" 
+
 fit_ExcInh = RunAncova(ConcPC1_ranked, ExcInh_ranked, Layer, 
-                       "results/summary_fit_ExcInh.txt")
+                       file_to_save)
 
 
 #Plot and save a boxplot for a summary of overall Exc/Inh in each layer
@@ -498,7 +581,9 @@ fig = plt.figure()
 fig.set_size_inches(10, 10)  
 sns.boxplot(x="Layer", y="ExcInh", data=df, palette="Set3")
 
-plt.savefig("results/ExcInh_LayerWise.svg", format="svg")
+file_to_save = results_folder / "ExcInh_LayerWise.svg"
+
+plt.savefig(file_to_save, format="svg")
 
 
 #Compute the correaltion between entropy of receptor density and PC1
@@ -509,18 +594,27 @@ rho_H_G, pval_H_G = spearmanr(PC1, H_G)
 #Plot the correlation between Entropy across PC1 
 
 #Infragranular layers
+
+file_to_save = results_folder / "H_I.svg"
+
 PlotSaveScatterPlot(PC1, H_I, RegionNames_Reduced, 
-                    "results/H_I.svg", "Infragranular Layers", "PC1", 
+                    file_to_save, "Infragranular Layers", "PC1", 
                     "Entropy of receptor density")
 
 #Granular layers
+
+file_to_save = results_folder / "H_G.svg"
+
 PlotSaveScatterPlot(PC1, H_G, RegionNames_Reduced, 
-                    "results/H_G.svg", "Granular Layers", "PC1", 
+                    file_to_save, "Granular Layers", "PC1", 
                     "Entropy of receptor density")
 
 #Supragranular layers
+
+file_to_save = results_folder / "H_S.svg"
+
 PlotSaveScatterPlot(PC1, H_S, RegionNames_Reduced, 
-                    "results/H_S.svg", "Supragranular Layers", "PC1", 
+                    file_to_save, "Supragranular Layers", "PC1", 
                     "Entropy of receptor density")
     
 
@@ -539,9 +633,9 @@ infra_index = np.asarray([3]*H_I.size)
 Layer = np.concatenate((infra_index, granular_index, supra_index), 
                               axis=0)
 
+file_to_save = results_folder / "summary_fit_H.txt"
 
-fit_H = RunAncova(ConcPC1_ranked, H_ranked, Layer, 
-                       "results/summary_fit_H.txt")
+fit_H = RunAncova(ConcPC1_ranked, H_ranked, Layer, file_to_save)
 
 
 #Plot and save a boxplot for a summary of overall Entropy in each lamiane
@@ -553,7 +647,9 @@ fig = plt.figure()
 fig.set_size_inches(10, 10)  
 sns.boxplot(x="Layer", y="H", data=df, palette="Set3")
 
-plt.savefig("results/H_LayerWise.svg", format="svg")
+file_to_save = results_folder / "H_LayerWise.svg"
+
+plt.savefig(file_to_save, format="svg")
 
 
 #Estimate overall density of ionotropic and metabotropic receptors and how
@@ -590,42 +686,67 @@ IonoMetaboDensity_S = np.concatenate((Iono_S, Metabo_S), axis=0)
 IonoMetaboDensity_S_ranked = rankdata(IonoMetaboDensity_S)
 
 #Fit the ancova models and save the results
+
+file_to_save = results_folder / "summary_fit_IonoMetabo_I.txt"
+
 fit_IonoMetaboDensity_I = RunAncova(ConcPC1_ranked, IonoMetaboDensity_I_ranked, ReceptorType, 
-                       "results/summary_fit_IonoMetabo_I.txt")
+                       file_to_save)
+
+file_to_save = results_folder / "summary_fit_IonoMetabo_G.txt"
 
 fit_IonoMetaboDensity_G = RunAncova(ConcPC1_ranked, IonoMetaboDensity_G_ranked, ReceptorType, 
-                       "results/summary_fit_IonoMetabo_G.txt")
+                       file_to_save)
+
+file_to_save = results_folder / "summary_fit_IonoMetabo_S.txt"
 
 fit_IonoMetaboDensity_S = RunAncova(ConcPC1_ranked, IonoMetaboDensity_S_ranked, ReceptorType, 
-                       "results/summary_fit_IonoMetabo_S.txt")
+                       file_to_save)
 
 
 # Plot seperately the relation of receptor density and PC1 for iono and metabo
 #receptors
 
 #Supragranular layers - Ionotropic
+
+file_to_save = results_folder / "Iono_S.svg"
+
 PlotSaveScatterPlot(PC1, Iono_S, RegionNames_Reduced, 
-                    "results/Iono_S.svg", "Supragranular Layers - Ionotropic", "PC1", "Receptor Density")
+                    file_to_save, "Supragranular Layers - Ionotropic", "PC1", "Receptor Density")
 
 #Supragranular layers - Metabotropic
+
+file_to_save = results_folder / "Metabo_S.svg"
+
 PlotSaveScatterPlot(PC1, Metabo_S, RegionNames_Reduced, 
-                    "results/Metabo_S.svg", "Supragranular Layers - Metabotropic", "PC1", "Receptor Density")
+                    file_to_save, "Supragranular Layers - Metabotropic", "PC1", "Receptor Density")
 
 #Granular layers - Ionotropic
+
+file_to_save = results_folder / "Iono_G.svg"
+
 PlotSaveScatterPlot(PC1, Iono_G, RegionNames_Reduced, 
-                    "results/Iono_G.svg", "Granular Layers - Ionotropic", "PC1", "Receptor Density")
+                    file_to_save, "Granular Layers - Ionotropic", "PC1", "Receptor Density")
 
 #Granular layers - Metabotropic
+
+file_to_save = results_folder / "Metabo_G.svg"
+
 PlotSaveScatterPlot(PC1, Metabo_G, RegionNames_Reduced, 
-                    "results/Metabo_G.svg", "Granular Layers - Metabotropic", "PC1", "Receptor Density")
+                    file_to_save, "Granular Layers - Metabotropic", "PC1", "Receptor Density")
 
 #Infragranular layers - Ionotropic
+
+file_to_save = results_folder / "Iono_I.svg"
+
 PlotSaveScatterPlot(PC1, Iono_I, RegionNames_Reduced, 
-                    "results/Iono_I.svg", "Infragranular Layers - Ionotropic", "PC1", "Receptor Density")
+                    file_to_save, "Infragranular Layers - Ionotropic", "PC1", "Receptor Density")
 
 #Infragranular layers - Metabotropic
+
+file_to_save = results_folder / "Metabo_I.svg"
+
 PlotSaveScatterPlot(PC1, Metabo_I, RegionNames_Reduced, 
-                    "results/Metabo_I.svg", "Infragranular Layers - Metabotropic", "PC1", "Receptor Density")
+                    file_to_save, "Infragranular Layers - Metabotropic", "PC1", "Receptor Density")
 
 
 #Examine the relation with the histological gradient of BigBrain
@@ -643,8 +764,14 @@ RegionNames_Reduced_Further = RegionNames_Reduced[indexes_not_nan]
 G1_BigBrain_reduced = G1_BigBrain_reduced[indexes_not_nan]
 PC1_reduced = PC1[indexes_not_nan]
 
+
+file_to_save = results_folder / "PC1_G1BigBrain.svg"
+
 PlotSaveScatterPlot(PC1_reduced, G1_BigBrain_reduced, RegionNames_Reduced_Further, 
-                    "results/PC1_G1BigBrain.svg", "Natural axis of recepto- and cytoarchitecture", "Receptoarchitectonic gradient (PC1)", "Cytoarchitectonic gradient")
+                    file_to_save, 
+                    "Natural axis of recepto- and cytoarchitecture", 
+                    "Receptoarchitectonic gradient (PC1)", 
+                    "Cytoarchitectonic gradient")
 
 
 #Examine how the receptor properties, that is, ExcInh, Entropy and overall
@@ -659,18 +786,27 @@ H_G = H_G[indexes_not_nan]
 H_S = H_S[indexes_not_nan]
 
 #Infragranular layers
+
+file_to_save = results_folder / "H_I_G1BigBrain.svg"
+
 PlotSaveScatterPlot(G1_BigBrain_reduced, H_I, RegionNames_Reduced_Further, 
-                    "results/H_I_G1BigBrain.svg", "Infragranular Layers", "Cytoarchitectonic gradient", 
+                    file_to_save, "Infragranular Layers", "Cytoarchitectonic gradient", 
                     "Entropy of receptor density")
 
 #Granular layers
+
+file_to_save = results_folder / "H_G_G1BigBrain.svg"
+
 PlotSaveScatterPlot(G1_BigBrain_reduced, H_G, RegionNames_Reduced_Further, 
-                    "results/H_G_G1BigBrain.svg", "Granular Layers", "Cytoarchitectonic gradient", 
+                    file_to_save, "Granular Layers", "Cytoarchitectonic gradient", 
                     "Entropy of receptor density")
 
 #Supragranular layers
+
+file_to_save = results_folder / "H_S_G1BigBrain.svg"
+
 PlotSaveScatterPlot(G1_BigBrain_reduced, H_S, RegionNames_Reduced_Further, 
-                    "results/H_S_G1BigBrain.svg", "Supragranular Layers", "Cytoarchitectonic gradient", 
+                    file_to_save, "Supragranular Layers", "Cytoarchitectonic gradient", 
                     "Entropy of receptor density")
     
 
@@ -691,8 +827,9 @@ Layer = np.concatenate((infra_index, granular_index, supra_index),
 
 G1_BigBrain_concatanated = np.concatenate((G1_BigBrain_reduced, G1_BigBrain_reduced, G1_BigBrain_reduced), axis=0)
 
-fit_H_G1BigBrain = RunAncova(G1_BigBrain_concatanated, H_ranked, Layer, 
-                       "results/summary_fit_H_G1BigBrain.txt")
+file_to_save = results_folder / "summary_fit_H_G1BigBrain.txt"
+
+fit_H_G1BigBrain = RunAncova(G1_BigBrain_concatanated, H_ranked, Layer, file_to_save)
 
 
 #Find the receptors that are the the most predictive of the cytoarchitectonic gradient
@@ -706,7 +843,7 @@ ReceptorProfiles = X[indexes_not_nan,:]
 MSE_of_rfe_step, FeatureNames_RFE_steps, FeatureScores_RFE_steps, Mean_AllPredictions = CustomRFE(ReceptorProfiles, 
                                                                              G1_BigBrain_reduced, 
                                                                              0.2, 
-                                                                             1000, 
+                                                                             100, 
                                                                              ReceptorNames_I_G_S)
 
 
@@ -716,7 +853,7 @@ G1_BigBrain_reduced_null = G1_BigBrain_reduced[np.random.permutation(len(G1_BigB
 MSE_of_rfe_step_null, FeatureNames_RFE_steps_null, FeatureScores_RFE_steps_null, Mean_AllPredictions_null = CustomRFE(ReceptorProfiles, 
                                                                              G1_BigBrain_reduced_null, 
                                                                              0.2, 
-                                                                             1000, 
+                                                                             100, 
                                                                              ReceptorNames_I_G_S)
 
 #Plor results of rfe
@@ -769,6 +906,9 @@ fig.set_size_inches(10, 10)
 
 plt.imshow(layer_wise_featurescores)
 
+file_to_save = results_folder / "layer_wise_featurescores.svg"
+
+plt.savefig(file_to_save, format="svg")
 
 
 # Test plots for average results across layers
@@ -799,7 +939,7 @@ plt.imshow(layer_wise_featurescores)
 #                    "results/H_PC1_alldensities.svg", "Entropy-PC1", "PC1", 
 #                    "H")
 
-
+#TODO
 #Perform a CDA with lobes as groups. Even though we are interested in the 
 #natural axis formed by the receptors densities, it provides a lobe-wise
 #summary that may be useful to "macroscopic-based" researchers  
