@@ -130,7 +130,7 @@ def mybiplot(score, coeff, path_name_saved_file, score_labels=None, coeff_labels
                      color = 'g', ha = 'center', va = 'center')
         else:
             plt.text(scale_coeff*coeff[i,0]* 1.15, scale_coeff*coeff[i,1] * 1.15, coeff_labels[i], 
-                     color = 'g', ha = 'center', va = 'center', fontsize=30)
+                     color = 'g', ha = 'center', va = 'center', fontsize=10)
             
     #plt.xlim(-1,1)
     #plt.ylim(-1,1)
@@ -398,6 +398,34 @@ def CustomRFE(X, Y, test_size_perc, iterations, feature_names):
    
 results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/results")
 
+#Path with the data in .npy format
+data_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/data")
+
+#Load all the necessary data
+
+file_to_open = data_folder / "ReceptData_I.npy"
+ReceptData_I = np.load(file_to_open)
+
+file_to_open = data_folder / "ReceptData_G.npy"
+ReceptData_G = np.load(file_to_open)
+
+file_to_open = data_folder / "ReceptData_S.npy"
+ReceptData_S = np.load(file_to_open)
+
+file_to_open = data_folder / "ReceptorTypes_ExcInh.npy"
+ReceptorTypes_ExcInh = np.load(file_to_open)
+
+file_to_open = data_folder / "RegionNames.npy"
+RegionNames = np.load(file_to_open)
+
+file_to_open = data_folder / "ReceptorNames.npy"
+ReceptorNames = np.load(file_to_open)
+
+file_to_open = data_folder / "ReceptorTypes_IonoMetabo.npy"
+ReceptorTypes_IonoMetabo = np.load(file_to_open)
+
+file_to_open = data_folder / "G1_BigBrain.npy"
+G1_BigBrain = np.load(file_to_open)
 
 #Analyze the data     
 
@@ -472,9 +500,6 @@ PlotRankOrderedValues(H_S, RegionNames_Reduced, file_to_save,
                       "Rank ordered regions Entropy Supragranular", "", "Entropy", 
                       np.min(H_S)-0.01, np.max(H_S))
 
-#H_I = CalculateEntropy(ReceptData_Reduced_I)
-#H_G = CalculateEntropy(ReceptData_Reduced_G)
-#H_S = CalculateEntropy(ReceptData_Reduced_S)
 
 #Create a list of receptor names with a prefix indicating the layer 
 #(for PCA visualization)
@@ -508,17 +533,18 @@ PC1_ranked = rankdata(PC1)
 #         RegionNames_Reduced, 
 #         ReceptorNames_I_G_S)
 
+#Flip the sign for visualization purposes
+PC1_2 = scores[:, 0:2]
+PC1_2[:,1] = -1*PC1_2[:, 1]
 
-PC1_2 = scores[:,0:2]
-PC1_2[:,1] = -1*PC1_2[:,1]
-
-coeff[:,1] = -1*coeff[:,1] 
+coeff[:,1] = -1*coeff[:, 1] 
 
 file_to_save = results_folder / "biplot.svg"
 
 mybiplot(PC1_2, coeff, file_to_save, 
          RegionNames_Reduced, 
          ReceptorNames_I_G_S)
+
 
 #Calcualte the correlation between EscInh across PC1 and plot the data
 rho_ExcInh_S, pval_ExcInh_S = spearmanr(PC1, ExcInh_S)
@@ -559,9 +585,9 @@ ExcInh_ranked = rankdata(ExcInh)
 
 #Make a categorical predictor indicating what is supra=1 granular=2 infra=3
 
-supra_index = np.asarray([1]*ExcInh_I.size)
+supra_index = np.asarray([3]*ExcInh_I.size)
 granular_index = np.asarray([2]*ExcInh_I.size)
-infra_index = np.asarray([3]*ExcInh_I.size)
+infra_index = np.asarray([1]*ExcInh_I.size)
 
 Layer = np.concatenate((infra_index, granular_index, supra_index), 
                               axis=0)
@@ -626,9 +652,9 @@ H_ranked = rankdata(H)
 
 #Make a categorical predictor indicating what is supra=1 granular=2 infra=3
 
-supra_index = np.asarray([1]*H_I.size)
+supra_index = np.asarray([3]*H_I.size)
 granular_index = np.asarray([2]*H_I.size)
-infra_index = np.asarray([3]*H_I.size)
+infra_index = np.asarray([1]*H_I.size)
 
 Layer = np.concatenate((infra_index, granular_index, supra_index), 
                               axis=0)
@@ -684,6 +710,70 @@ IonoMetaboDensity_G_ranked = rankdata(IonoMetaboDensity_G)
 
 IonoMetaboDensity_S = np.concatenate((Iono_S, Metabo_S), axis=0)
 IonoMetaboDensity_S_ranked = rankdata(IonoMetaboDensity_S)
+
+#Plot ranked-order metabo and iono densities for each area in a layer-wise way.
+#Iono
+file_to_save = results_folder / "Iono_RankOrdered_I.svg"
+
+PlotRankOrderedValues(Iono_I, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Iono Infragranular", "", "Iono I", 
+                      np.min(Iono_I)-50, np.max(Iono_I))
+
+file_to_save = results_folder / "Iono_RankOrdered_G.svg"
+
+PlotRankOrderedValues(Iono_G, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Iono Granular", "", "Iono G", 
+                      np.min(Iono_G)-50, np.max(Iono_G))
+
+file_to_save = results_folder / "Iono_RankOrdered_S.svg"
+
+PlotRankOrderedValues(Iono_S, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Iono Supragranular", "", "Iono S", 
+                      np.min(Iono_S)-50, np.max(Iono_S))
+
+#Metabo
+file_to_save = results_folder / "Metabo_RankOrdered_I.svg"
+
+PlotRankOrderedValues(Metabo_I, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Metabo Infragranular", "", "Metabo I", 
+                      np.min(Metabo_I)-50, np.max(Metabo_I))
+
+file_to_save = results_folder / "Metabo_RankOrdered_G.svg"
+
+PlotRankOrderedValues(Metabo_G, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Metabo Granular", "", "Metabo G", 
+                      np.min(Metabo_G)-50, np.max(Metabo_G))
+
+file_to_save = results_folder / "Metabo_RankOrdered_S.svg"
+
+PlotRankOrderedValues(Metabo_S, RegionNames_Reduced, file_to_save, 
+                      "Rank ordered regions Metabo Supragranular", "", "Metabo S", 
+                      np.min(Metabo_S)-50, np.max(Metabo_S))
+
+#Plot boxplots for the iono and metabo receptors on a layer-wise manner
+#Iono
+Iono = np.concatenate((Iono_I, Iono_G, Iono_S), axis=0)
+data_Iono_LayerWise = {'Iono':Iono, 'Layer':Layer}
+df = pd.DataFrame(data_Iono_LayerWise)
+
+fig = plt.figure()
+fig.set_size_inches(10, 10)  
+sns.boxplot(x="Layer", y="Iono", data=df, palette="Set3")
+
+file_to_save = results_folder / "Iono_LayerWise.svg"
+plt.savefig(file_to_save, format="svg")
+
+#Metabo
+Metabo = np.concatenate((Metabo_I, Metabo_G, Metabo_S), axis=0)
+data_Metabo_LayerWise = {'Metabo':Metabo, 'Layer':Layer}
+df = pd.DataFrame(data_Metabo_LayerWise)
+
+fig = plt.figure()
+fig.set_size_inches(10, 10)  
+sns.boxplot(x="Layer", y="Metabo", data=df, palette="Set3")
+
+file_to_save = results_folder / "Metabo_LayerWise.svg"
+plt.savefig(file_to_save, format="svg")
 
 #Fit the ancova models and save the results
 
