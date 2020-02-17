@@ -414,12 +414,13 @@ G1_BigBrain = np.load(file_to_open)
 # Analyze the data     
 
 # Calculate excitation inhibition 
-ExcInh_I, ExcInh_G, ExcInh_S, indexes_notzeros = compute_excinh(ReceptData_I, 
-                                                                 ReceptData_G, 
-                                                                 ReceptData_S, 
-                                                                 ReceptorTypes_ExcInh)
+(ExcInh_I, ExcInh_G, ExcInh_S, 
+ indexes_notzeros) = compute_excinh(ReceptData_I, 
+                                    ReceptData_G, 
+                                    ReceptData_S, 
+                                    ReceptorTypes_ExcInh)
 
-#Keep only the data with values - hence remove agranular areas
+# Keep only the data with values - hence remove agranular areas
 ReceptData_Reduced_I = ReceptData_I[indexes_notzeros, :]
 ReceptData_Reduced_G = ReceptData_G[indexes_notzeros, :]
 ReceptData_Reduced_S = ReceptData_S[indexes_notzeros, :]
@@ -429,7 +430,7 @@ ExcInh_S = ExcInh_S[indexes_notzeros]
 
 RegionNames_Reduced = np.array(RegionNames)[indexes_notzeros]
 
-#Plot rank ordered exc/inh for each region and laminar compartment
+# Plot rank ordered exc/inh for each region and laminar compartment
 
 file_to_save = results_folder / "ExcInh_RankOrdered_I.svg"
 
@@ -447,30 +448,30 @@ plot_rank_ordered_values(ExcInh_I,
 file_to_save = results_folder / "ExcInh_RankOrdered_G.svg"
 
 plot_rank_ordered_values(ExcInh_G, 
-                         RegionNames_Reduced, 
-                         file_to_save, 
-                         "Rank ordered regions Exc/Inh Granular", 
-                         "", 
-                         "Exc/Inh", 
-                         np.min(ExcInh_G)-0.1, 
-                         np.max(ExcInh_G)
+                         labels=RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Exc/Inh Granular", 
+                         x_label="", 
+                         y_label="Exc/Inh", 
+                         y_min=np.min(ExcInh_G)-0.1, 
+                         y_max=np.max(ExcInh_G)
                          )
 
 file_to_save = results_folder / "ExcInh_RankOrdered_S.svg"
 
 plot_rank_ordered_values(ExcInh_S, 
-                         RegionNames_Reduced, 
-                         file_to_save, 
-                         "Rank ordered regions Exc/Inh Supragranular", 
-                         "", 
-                         "Exc/Inh", 
-                         np.min(ExcInh_S)-0.1, 
-                         np.max(ExcInh_S)
+                         labels=RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Exc/Inh Supragranular", 
+                         x_label="", 
+                         y_label="Exc/Inh", 
+                         y_min=np.min(ExcInh_S)-0.1, 
+                         y_max=np.max(ExcInh_S)
                          )
 
-#Calculate Entropy
+# Calculate Entropy
 
-#Normalize densities per receptor
+# Normalize densities per receptor
 
 max_ReceptData_Reduced_I = np.max(ReceptData_Reduced_I, axis=0)
 max_ReceptData_Reduced_G = np.max(ReceptData_Reduced_G, axis=0)
@@ -487,25 +488,43 @@ H_S = calculate_entropy(ReceptData_Reduced_S_norm)
 
 file_to_save = results_folder / "H_RankOrdered_I.svg"
 
-plot_rank_ordered_values(H_I, RegionNames_Reduced, file_to_save,
-                      "Rank ordered regions Entropy Infragranular", "", "Entropy", 
-                      np.min(H_I)-0.01, np.max(H_I))
+plot_rank_ordered_values(H_I, 
+                         labels=RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save,
+                         title="Rank ordered regions Entropy Infragranular", 
+                         x_label="", 
+                         y_label="Entropy", 
+                         y_min=np.min(H_I)-0.01, 
+                         y_max=np.max(H_I)
+                         )
 
 file_to_save = results_folder / "H_RankOrdered_G.svg"
 
-plot_rank_ordered_values(H_G, RegionNames_Reduced, file_to_save,
-                      "Rank ordered regions Entropy Granular", "", "Entropy", 
-                      np.min(H_G)-0.01, np.max(H_G))
+plot_rank_ordered_values(H_G, 
+                         labels=RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save,
+                         title="Rank ordered regions Entropy Granular", 
+                         x_label="", 
+                         y_label="Entropy", 
+                         y_min=np.min(H_G)-0.01, 
+                         y_max=np.max(H_G)
+                         )
 
 file_to_save = results_folder / "H_RankOrdered_S.svg"
 
-plot_rank_ordered_values(H_S, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Entropy Supragranular", "", "Entropy", 
-                      np.min(H_S)-0.01, np.max(H_S))
+plot_rank_ordered_values(H_S, 
+                         labels=RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Entropy Supragranular", 
+                         x_label="", 
+                         y_label="Entropy", 
+                         y_min=np.min(H_S)-0.01, 
+                         y_max=np.max(H_S)
+                         )
 
 
-#Create a list of receptor names with a prefix indicating the layer 
-#(for PCA visualization)
+# Create a list of receptor names with a prefix indicating the layer 
+# (for PCA visualization)
 ReceptorNames_I_G_S = [ ]
 
 for i in range(len(ReceptorNames)*3): 
@@ -519,8 +538,9 @@ for i in range(len(ReceptorNames)*3):
     if i > 29 and i <= 44:
         ReceptorNames_I_G_S.append(ReceptorNames[i-30] + '_S')
 
-#Run PCA on the receptor data after they are z-scored
-X = np.concatenate((ReceptData_Reduced_I, ReceptData_Reduced_G, ReceptData_Reduced_S), axis=1)
+# Run PCA on the receptor data after they are z-scored
+X = np.concatenate((ReceptData_Reduced_I, ReceptData_Reduced_G, ReceptData_Reduced_S), 
+                   axis=1)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
@@ -531,12 +551,8 @@ coeff = np.transpose(pca.components_[0:2, :])# Do we have to transpose? Yes!
 PC1 = scores[:,0] 
 PC1_ranked = rankdata(PC1) 
 
-#Visualize with a biplot - this visualization can be ameliorated - TODO
-#mybiplot(scores[:, 0:2], coeff, "results/biplot.svg", 
-#         RegionNames_Reduced, 
-#         ReceptorNames_I_G_S)
 
-#Flip the sign for visualization purposes
+# Flip the sign for visualization purposes
 PC1_2 = scores[:, 0:2]
 PC1_2[:,1] = -1*PC1_2[:, 1]
 
@@ -544,55 +560,66 @@ coeff[:,1] = -1*coeff[:, 1]
 
 file_to_save = results_folder / "biplot.svg"
 
-mybiplot(PC1_2, coeff, file_to_save, 
-         RegionNames_Reduced, 
-         ReceptorNames_I_G_S)
+mybiplot(PC1_2, 
+         coeff, 
+         path_name_saved_file=file_to_save, 
+         score_labels=RegionNames_Reduced, 
+         coeff_labels=ReceptorNames_I_G_S
+         )
 
-
-#Calcualte the correlation between EscInh across PC1 and plot the data
+# Calcualte the correlation between EscInh across PC1 and plot the data
 rho_ExcInh_S, pval_ExcInh_S = spearmanr(PC1, ExcInh_S)
 rho_ExcInh_G, pval_ExcInh_G = spearmanr(PC1, ExcInh_G)  
 rho_ExcInh_I, pval_ExcInh_I = spearmanr(PC1, ExcInh_I)
     
 # Plot the relation between Exc/Inh and PC1
 
-#Infragranular layers
-
+# Infragranular layers
 file_to_save = results_folder / "ExcInh_I.svg"
 
-plot_save_scatter_plot(
-    PC1, ExcInh_I, 
-    RegionNames_Reduced, 
-    file_to_save,
-    "Infragranular Layers", 
-    "PC1", 
-    "Exc/Inh receptor density"
-    )
+plot_save_scatter_plot(PC1, 
+                       ExcInh_I, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save,
+                       title="Infragranular Layers", 
+                       x_label="PC1", 
+                       y_label="Exc/Inh receptor density"
+                       )
 
-#Granular layers
-
+# Granular layers
 file_to_save = results_folder / "ExcInh_G.svg"
 
-plot_save_scatter_plot(PC1, ExcInh_G, RegionNames_Reduced, 
-                    file_to_save, "Granular Layers", "PC1", "Exc/Inh receptor density")
+plot_save_scatter_plot(PC1,
+                       ExcInh_G, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Granular Layers", 
+                       x_label="PC1", 
+                       y_label="Exc/Inh receptor density"
+                       )
 
-#Supragranular layers
-
+# Supragranular layers
 file_to_save = results_folder / "ExcInh_S.svg"
 
-plot_save_scatter_plot(PC1, ExcInh_S, RegionNames_Reduced, 
-                   file_to_save, "Supragranular Layers", "PC1", "Exc/Inh receptor density")
+plot_save_scatter_plot(PC1, 
+                       ExcInh_S, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Supragranular Layers", 
+                       x_label="PC1", 
+                       y_label="Exc/Inh receptor density"
+                       )
 
-#Run an ANCOVA model to test if the Exc/Inh and PC1 slopes are layer specific
-ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked, PC1_ranked), axis=0)
+# Run an ANCOVA model to test if the Exc/Inh and PC1 slopes are layer specific
+ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked, PC1_ranked), 
+                                axis=0)
 
 
-#ExcInh = np.concatenate((ExcInh_I_ranked, ExcInh_G_ranked, ExcInh_S_ranked), axis=0)
-
-ExcInh = np.concatenate((ExcInh_I, ExcInh_G, ExcInh_S), axis=0)
+ExcInh = np.concatenate((ExcInh_I, ExcInh_G, ExcInh_S), 
+                        axis=0)
 ExcInh_ranked = rankdata(ExcInh)
 
-#Make a categorical predictor indicating what is supra=1 granular=2 infra=3
+# Make a categorical predictor indicating what is supra=1 granular=2 infra=3
 
 supra_index = np.asarray([3]*ExcInh_I.size)
 granular_index = np.asarray([2]*ExcInh_I.size)
@@ -606,11 +633,11 @@ file_to_save = results_folder / "summary_fit_ExcInh.txt"
 fit_ExcInh = run_ancova(ConcPC1_ranked,
                         ExcInh_ranked, 
                         Layer, 
-                        file_to_save)
+                        filename_results=file_to_save
+                        )
 
-
-#Plot and save a boxplot for a summary of overall Exc/Inh in each layer
-#Use unranked data for better interpertabilty
+# Plot and save a boxplot for a summary of overall Exc/Inh in each layer
+# Use unranked data for better interpertabilty
 data_ExcInh_LayerWise = {'PC1':ConcPC1_ranked, 'ExcInh':ExcInh, 'Layer':Layer}
 df = pd.DataFrame(data_ExcInh_LayerWise)
 
@@ -622,8 +649,7 @@ file_to_save = results_folder / "ExcInh_LayerWise.svg"
 
 plt.savefig(file_to_save, format="svg")
 
-
-#Compute the correaltion between entropy of receptor density and PC1
+# Compute the correaltion between entropy of receptor density and PC1
 rho_H_S, pval_H_S = spearmanr(PC1, H_S)
 rho_H_I, pval_H_I = spearmanr(PC1, H_I)
 rho_H_G, pval_H_G = spearmanr(PC1, H_G)
@@ -631,33 +657,41 @@ rho_H_G, pval_H_G = spearmanr(PC1, H_G)
 #Plot the correlation between Entropy across PC1 
 
 #Infragranular layers
-
 file_to_save = results_folder / "H_I.svg"
 
 plot_save_scatter_plot(PC1, 
                        H_I, 
-                       RegionNames_Reduced, 
-                       file_to_save, 
-                       "Infragranular Layers", 
-                       "PC1", 
-                       "Entropy of receptor density"
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Infragranular Layers", 
+                       x_label="PC1", 
+                       y_label="Entropy of receptor density"
                        )
 
 #Granular layers
-
 file_to_save = results_folder / "H_G.svg"
 
-plot_save_scatter_plot(PC1, H_G, RegionNames_Reduced, 
-                    file_to_save, "Granular Layers", "PC1", 
-                    "Entropy of receptor density")
+plot_save_scatter_plot(PC1, 
+                       H_G, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Granular Layers", 
+                       x_label="PC1", 
+                       y_label="Entropy of receptor density"
+                       )
 
 #Supragranular layers
 
 file_to_save = results_folder / "H_S.svg"
 
-plot_save_scatter_plot(PC1, H_S, RegionNames_Reduced, 
-                    file_to_save, "Supragranular Layers", "PC1", 
-                    "Entropy of receptor density")
+plot_save_scatter_plot(PC1, 
+                       H_S, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Supragranular Layers", 
+                       x_label="PC1", 
+                       y_label="Entropy of receptor density"
+                       )
     
 
 # Fit an ANCOVA model to uncover if the relation of PC1 and Entropy of receptor
@@ -675,8 +709,11 @@ Layer = np.concatenate((infra_index, granular_index, supra_index),
 
 file_to_save = results_folder / "summary_fit_H.txt"
 
-fit_H = run_ancova(ConcPC1_ranked, H_ranked, Layer, file_to_save)
-
+fit_H = run_ancova(ConcPC1_ranked, 
+                   H_ranked, 
+                   Layer, 
+                   filename_results=file_to_save
+                   )
 
 # Plot and save a boxplot for a summary of overall Entropy in each laminae
 # Use unranked data for better interpertabilty
@@ -690,7 +727,6 @@ sns.boxplot(x="Layer", y="H", data=df, palette="Set3")
 file_to_save = results_folder / "H_LayerWise.svg"
 
 plt.savefig(file_to_save, format="svg")
-
 
 # Estimate overall density of ionotropic and metabotropic receptors and how
 # they relate to PC1
@@ -709,66 +745,108 @@ Metabo_S = Metabo_S[indexes_notzeros_ionometabo]
 
 # Make a categorical predictor indicating that iono =1 and metabo =2
 
-ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked), axis=0)
+ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked), 
+                                axis=0)
 
 # This categorical predictor will be used for all I, G, S models since
 # the size and arrangement of the predictors is identical
 index_iono = np.asarray([1]*Iono_I.size)
 index_metabo = np.asarray([2]*Metabo_I.size)
 
-ReceptorType = np.concatenate((index_iono, index_metabo), axis=0)
+ReceptorType = np.concatenate((index_iono, index_metabo), 
+                              axis=0)
 
-IonoMetaboDensity_I = np.concatenate((Iono_I, Metabo_I), axis=0)
+IonoMetaboDensity_I = np.concatenate((Iono_I, Metabo_I), 
+                                     axis=0)
 IonoMetaboDensity_I_ranked = rankdata(IonoMetaboDensity_I)
 
-IonoMetaboDensity_G = np.concatenate((Iono_G, Metabo_G), axis=0)
+IonoMetaboDensity_G = np.concatenate((Iono_G, Metabo_G), 
+                                     axis=0)
 IonoMetaboDensity_G_ranked = rankdata(IonoMetaboDensity_G)
 
-IonoMetaboDensity_S = np.concatenate((Iono_S, Metabo_S), axis=0)
+IonoMetaboDensity_S = np.concatenate((Iono_S, Metabo_S), 
+                                     axis=0)
 IonoMetaboDensity_S_ranked = rankdata(IonoMetaboDensity_S)
 
-#Plot ranked-order metabo and iono densities for each area in a layer-wise way.
-#Iono
+# Plot ranked-order metabo and iono densities for each area in a layer-wise way.
+# Iono
 file_to_save = results_folder / "Iono_RankOrdered_I.svg"
 
-plot_rank_ordered_values(Iono_I, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Iono Infragranular", "", "Iono I", 
-                      np.min(Iono_I)-50, np.max(Iono_I))
+plot_rank_ordered_values(Iono_I, 
+                         RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Iono Infragranular", 
+                         x_label="", 
+                         y_label="Iono I", 
+                         y_min=np.min(Iono_I)-50, 
+                         y_max=np.max(Iono_I)
+                         )
 
 file_to_save = results_folder / "Iono_RankOrdered_G.svg"
 
-plot_rank_ordered_values(Iono_G, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Iono Granular", "", "Iono G", 
-                      np.min(Iono_G)-50, np.max(Iono_G))
+plot_rank_ordered_values(Iono_G, 
+                         RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Iono Granular",
+                         x_label="", 
+                         y_label="Iono G", 
+                         y_min=np.min(Iono_G)-50, 
+                         y_max=np.max(Iono_G)
+                         )
 
 file_to_save = results_folder / "Iono_RankOrdered_S.svg"
 
-plot_rank_ordered_values(Iono_S, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Iono Supragranular", "", "Iono S", 
-                      np.min(Iono_S)-50, np.max(Iono_S))
+plot_rank_ordered_values(Iono_S, 
+                         RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Iono Supragranular", 
+                         x_label="", 
+                         y_label="Iono S", 
+                         y_min=np.min(Iono_S)-50, 
+                         y_max=np.max(Iono_S)
+                         )
 
-#Metabo
+# Metabo
 file_to_save = results_folder / "Metabo_RankOrdered_I.svg"
 
-plot_rank_ordered_values(Metabo_I, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Metabo Infragranular", "", "Metabo I", 
-                      np.min(Metabo_I)-50, np.max(Metabo_I))
+plot_rank_ordered_values(Metabo_I, 
+                         RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Metabo Infragranular", 
+                         x_label="", 
+                         y_label="Metabo I", 
+                         y_min=np.min(Metabo_I)-50, 
+                         y_max=np.max(Metabo_I)
+                         )
 
 file_to_save = results_folder / "Metabo_RankOrdered_G.svg"
 
-plot_rank_ordered_values(Metabo_G, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Metabo Granular", "", "Metabo G", 
-                      np.min(Metabo_G)-50, np.max(Metabo_G))
+plot_rank_ordered_values(Metabo_G, 
+                         RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Metabo Granular", 
+                         x_label="", 
+                         y_label="Metabo G", 
+                         y_min=np.min(Metabo_G)-50, 
+                         y_max=np.max(Metabo_G)
+                         )
 
 file_to_save = results_folder / "Metabo_RankOrdered_S.svg"
 
-plot_rank_ordered_values(Metabo_S, RegionNames_Reduced, file_to_save, 
-                      "Rank ordered regions Metabo Supragranular", "", "Metabo S", 
-                      np.min(Metabo_S)-50, np.max(Metabo_S))
+plot_rank_ordered_values(Metabo_S, 
+                         RegionNames_Reduced, 
+                         path_name_saved_file=file_to_save, 
+                         title="Rank ordered regions Metabo Supragranular", 
+                         x_label="", 
+                         y_label="Metabo S", 
+                         y_min=np.min(Metabo_S)-50, 
+                         y_max=np.max(Metabo_S)
+                         )
 
-#Plot boxplots for the iono and metabo receptors on a layer-wise manner
-#Iono
-Iono = np.concatenate((Iono_I, Iono_G, Iono_S), axis=0)
+# Plot boxplots for the iono and metabo receptors on a layer-wise manner
+# Iono
+Iono = np.concatenate((Iono_I, Iono_G, Iono_S), 
+                      axis=0)
 data_Iono_LayerWise = {'Iono':Iono, 'Layer':Layer}
 df = pd.DataFrame(data_Iono_LayerWise)
 
@@ -780,7 +858,8 @@ file_to_save = results_folder / "Iono_LayerWise.svg"
 plt.savefig(file_to_save, format="svg")
 
 #Metabo
-Metabo = np.concatenate((Metabo_I, Metabo_G, Metabo_S), axis=0)
+Metabo = np.concatenate((Metabo_I, Metabo_G, Metabo_S), 
+                        axis=0)
 data_Metabo_LayerWise = {'Metabo':Metabo, 'Layer':Layer}
 df = pd.DataFrame(data_Metabo_LayerWise)
 
@@ -795,64 +874,103 @@ plt.savefig(file_to_save, format="svg")
 
 file_to_save = results_folder / "summary_fit_IonoMetabo_I.txt"
 
-fit_IonoMetaboDensity_I = run_ancova(ConcPC1_ranked, IonoMetaboDensity_I_ranked, ReceptorType, 
-                       file_to_save)
+fit_IonoMetaboDensity_I = run_ancova(ConcPC1_ranked, 
+                                     IonoMetaboDensity_I_ranked, 
+                                     ReceptorType, 
+                                     filename_results=file_to_save
+                                     )
 
 file_to_save = results_folder / "summary_fit_IonoMetabo_G.txt"
 
-fit_IonoMetaboDensity_G = run_ancova(ConcPC1_ranked, IonoMetaboDensity_G_ranked, ReceptorType, 
-                       file_to_save)
+fit_IonoMetaboDensity_G = run_ancova(ConcPC1_ranked, 
+                                     IonoMetaboDensity_G_ranked, 
+                                     ReceptorType, 
+                                     filename_results=file_to_save
+                                     )
 
 file_to_save = results_folder / "summary_fit_IonoMetabo_S.txt"
 
-fit_IonoMetaboDensity_S = run_ancova(ConcPC1_ranked, IonoMetaboDensity_S_ranked, ReceptorType, 
-                       file_to_save)
-
+fit_IonoMetaboDensity_S = run_ancova(ConcPC1_ranked, 
+                                     IonoMetaboDensity_S_ranked, 
+                                     ReceptorType, 
+                                     filename_results=file_to_save
+                                     )
 
 # Plot seperately the relation of receptor density and PC1 for iono and metabo
 # receptors
-
+                       
 #Supragranular layers - Ionotropic
-
 file_to_save = results_folder / "Iono_S.svg"
 
-plot_save_scatter_plot(PC1, Iono_S, RegionNames_Reduced, 
-                    file_to_save, "Supragranular Layers - Ionotropic", "PC1", "Receptor Density")
+plot_save_scatter_plot(PC1, 
+                       Iono_S, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Supragranular Layers - Ionotropic", 
+                       x_label="PC1", 
+                       y_label="Receptor Density"
+                       )
 
 #Supragranular layers - Metabotropic
-
 file_to_save = results_folder / "Metabo_S.svg"
 
-plot_save_scatter_plot(PC1, Metabo_S, RegionNames_Reduced, 
-                    file_to_save, "Supragranular Layers - Metabotropic", "PC1", "Receptor Density")
+plot_save_scatter_plot(PC1, 
+                       Metabo_S, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Supragranular Layers - Metabotropic", 
+                       x_label="PC1", 
+                       y_label="Receptor Density"
+                       )
 
 #Granular layers - Ionotropic
 
 file_to_save = results_folder / "Iono_G.svg"
 
-plot_save_scatter_plot(PC1, Iono_G, RegionNames_Reduced, 
-                    file_to_save, "Granular Layers - Ionotropic", "PC1", "Receptor Density")
+plot_save_scatter_plot(PC1, 
+                       Iono_G, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Granular Layers - Ionotropic", 
+                       x_label="PC1", 
+                       y_label="Receptor Density"
+                       )
 
-#Granular layers - Metabotropic
-
+# Granular layers - Metabotropic
 file_to_save = results_folder / "Metabo_G.svg"
 
-plot_save_scatter_plot(PC1, Metabo_G, RegionNames_Reduced, 
-                    file_to_save, "Granular Layers - Metabotropic", "PC1", "Receptor Density")
+plot_save_scatter_plot(PC1, 
+                       Metabo_G, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Granular Layers - Metabotropic", 
+                       x_label="PC1", 
+                       y_label="Receptor Density"
+                       )
 
-#Infragranular layers - Ionotropic
-
+# Infragranular layers - Ionotropic
 file_to_save = results_folder / "Iono_I.svg"
 
-plot_save_scatter_plot(PC1, Iono_I, RegionNames_Reduced, 
-                    file_to_save, "Infragranular Layers - Ionotropic", "PC1", "Receptor Density")
+plot_save_scatter_plot(PC1, 
+                       Iono_I, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Infragranular Layers - Ionotropic", 
+                       x_label="PC1", 
+                       y_label="Receptor Density"
+                       )
 
-#Infragranular layers - Metabotropic
-
+# Infragranular layers - Metabotropic
 file_to_save = results_folder / "Metabo_I.svg"
 
-plot_save_scatter_plot(PC1, Metabo_I, RegionNames_Reduced, 
-                    file_to_save, "Infragranular Layers - Metabotropic", "PC1", "Receptor Density")
+plot_save_scatter_plot(PC1, 
+                       Metabo_I, 
+                       dataPoints_names=RegionNames_Reduced, 
+                       path_name_saved_file=file_to_save, 
+                       title="Infragranular Layers - Metabotropic", 
+                       x_label="PC1", 
+                       y_label="Receptor Density"
+                       )
 
 
 # Examine the relation with the histological gradient of BigBrain
@@ -873,13 +991,13 @@ PC1_reduced = PC1[indexes_not_nan]
 file_to_save = results_folder / "PC1_G1BigBrain.svg"
 
 plot_save_scatter_plot(PC1_reduced, 
-                       G1_BigBrain_reduced, RegionNames_Reduced_Further, 
-                       file_to_save, 
-                       "Natural axis of recepto- and cytoarchitecture", 
-                       "Receptoarchitectonic gradient (PC1)", 
-                       "Cytoarchitectonic gradient"
+                       G1_BigBrain_reduced, 
+                       dataPoints_names=RegionNames_Reduced_Further, 
+                       path_name_saved_file=file_to_save, 
+                       title="Natural axis of recepto- and cytoarchitecture", 
+                       x_label="Receptoarchitectonic gradient (PC1)", 
+                       y_label="Cytoarchitectonic gradient"
                        )
-
 
 # Examine how the receptor properties, that is, ExcInh, Entropy and overall
 # iono/metabotropic densities. PC1 of receptors correlates with the 
@@ -892,34 +1010,47 @@ H_G = H_G[indexes_not_nan]
 H_S = H_S[indexes_not_nan]
 
 # Infragranular layers
-
 file_to_save = results_folder / "H_I_G1BigBrain.svg"
 
-plot_save_scatter_plot(G1_BigBrain_reduced, H_I, RegionNames_Reduced_Further, 
-                    file_to_save, "Infragranular Layers", "Cytoarchitectonic gradient", 
-                    "Entropy of receptor density")
+plot_save_scatter_plot(G1_BigBrain_reduced, 
+                       H_I, 
+                       dataPoints_names=RegionNames_Reduced_Further, 
+                       path_name_saved_file=file_to_save, 
+                       title="Infragranular Layers", 
+                       x_label="Cytoarchitectonic gradient", 
+                       y_label="Entropy of receptor density"
+                    )
 
-#Granular layers
-
+# Granular layers
 file_to_save = results_folder / "H_G_G1BigBrain.svg"
 
-plot_save_scatter_plot(G1_BigBrain_reduced, H_G, RegionNames_Reduced_Further, 
-                    file_to_save, "Granular Layers", "Cytoarchitectonic gradient", 
-                    "Entropy of receptor density")
+plot_save_scatter_plot(G1_BigBrain_reduced, 
+                       H_G, 
+                       dataPoints_names=RegionNames_Reduced_Further, 
+                       path_name_saved_file=file_to_save, 
+                       title="Granular Layers", 
+                       x_label="Cytoarchitectonic gradient", 
+                       y_label="Entropy of receptor density"
+                       )
 
-#Supragranular layers
+# Supragranular layers
 
 file_to_save = results_folder / "H_S_G1BigBrain.svg"
 
-plot_save_scatter_plot(G1_BigBrain_reduced, H_S, RegionNames_Reduced_Further, 
-                    file_to_save, "Supragranular Layers", "Cytoarchitectonic gradient", 
-                    "Entropy of receptor density")
+plot_save_scatter_plot(G1_BigBrain_reduced, 
+                       H_S, 
+                       dataPoints_names=RegionNames_Reduced_Further, 
+                       path_name_saved_file=file_to_save, 
+                       title="Supragranular Layers", 
+                       x_label="Cytoarchitectonic gradient", 
+                       y_label="Entropy of receptor density"
+                       )
     
-
 #Fit an ANCOVA model to uncover if the relation of PC1 and Entropy of receptor
 #density is meadiated by the Layer type
 
-H = np.concatenate((H_I, H_G, H_S), axis=0)
+H = np.concatenate((H_I, H_G, H_S), 
+                   axis=0)
 H_ranked = rankdata(H)
 
 #Make a categorical predictor indicating what is supra=1 granular=2 infra=3
@@ -937,8 +1068,9 @@ G1_BigBrain_concatanated = np.concatenate((G1_BigBrain_reduced, G1_BigBrain_redu
 file_to_save = results_folder / "summary_fit_H_G1BigBrain.txt"
 
 fit_H_G1BigBrain = run_ancova(G1_BigBrain_concatanated, 
-                             H_ranked, Layer, 
-                             file_to_save)
+                             H_ranked, 
+                             Layer, 
+                             filename_results=file_to_save)
 
 
 # Find the receptors that are the the most predictive of the cytoarchitectonic 
@@ -954,9 +1086,9 @@ ReceptorProfiles = X[indexes_not_nan,:]
  FeatureScores_RFE_steps, 
  Mean_AllPredictions) = custom_RFE(ReceptorProfiles, 
                                    G1_BigBrain_reduced, 
-                                   0.2, 
-                                   100, 
-                                   ReceptorNames_I_G_S
+                                   test_size_perc=0.2, 
+                                   iterations=100, 
+                                   feature_names=ReceptorNames_I_G_S
                                    )
 
 
@@ -968,9 +1100,9 @@ G1_BigBrain_reduced_null = G1_BigBrain_reduced[np.random.permutation(len(G1_BigB
  FeatureScores_RFE_steps_null, 
  Mean_AllPredictions_null) = custom_RFE(ReceptorProfiles, 
                                         G1_BigBrain_reduced_null, 
-                                        0.2, 
-                                        100, 
-                                        ReceptorNames_I_G_S
+                                        test_size_perc=0.2, 
+                                        iterations=100, 
+                                        feature_names=ReceptorNames_I_G_S
                                         )
 
 # Plot results of rfe
