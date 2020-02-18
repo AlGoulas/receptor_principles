@@ -1087,7 +1087,7 @@ ReceptorProfiles = X[indexes_not_nan,:]
  Mean_AllPredictions) = custom_RFE(ReceptorProfiles, 
                                    G1_BigBrain_reduced, 
                                    test_size_perc=0.2, 
-                                   iterations=100, 
+                                   iterations=1000, 
                                    feature_names=ReceptorNames_I_G_S
                                    )
 
@@ -1101,7 +1101,7 @@ G1_BigBrain_reduced_null = G1_BigBrain_reduced[np.random.permutation(len(G1_BigB
  Mean_AllPredictions_null) = custom_RFE(ReceptorProfiles, 
                                         G1_BigBrain_reduced_null, 
                                         test_size_perc=0.2, 
-                                        iterations=100, 
+                                        iterations=1000, 
                                         feature_names=ReceptorNames_I_G_S
                                         )
 
