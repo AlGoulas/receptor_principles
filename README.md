@@ -14,7 +14,7 @@ To do so, you have to specifify the following folder and paths in the DistillPri
 ```
 results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/results")
 ```
-2. Folder to load the necessary data (.npy files in the data folder of this repository). E.g.,
+2. Folder to load the necessary data (.npy files in the recept_data folder of this repository). E.g.,
 ```
 data_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/data")
 ```
