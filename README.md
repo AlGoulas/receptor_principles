@@ -6,7 +6,7 @@ Uncover receptor principles of the human brain with data mining
 # Description
 The code performs a series of multivariate stats, dimensionaltiy reduction, machine learning (support vector regression) analysis, as well as feature selection (recursive feature elimination) to gain insights into the organization of 15 different types of receptors in the human brain.
 
-Receptor density data are acquired via histological proceissing of human tissue (quantitative receptor autoradiography). An example of such datset is depicted in the figure (left panel) for the muscarinic M<sup>2</sup> transmitter receptor.
+Receptor density data are acquired via histological proceissing of human tissue (quantitative receptor autoradiography). An example of such datset is depicted in the figure (left panel) for the muscarinic M<sub>2</sub> transmitter receptor.
 
 # Use
 Create a virtual environment (e.g., with conda) with the specifications enlisted in requirements.txt. Download or clone this repository. If the virtual environment was created sucessfully, no further installations are required - the main .py file can be executed (DistillPrinciples.py).
