@@ -16,7 +16,6 @@ from sklearn.feature_selection import RFE
 from sklearn.metrics import mean_squared_error
 from statsmodels.formula.api import ols
 
-
 #sns.set(context='poster', style='white')
 
 # Assume fonts are installed when exporting in .svg
@@ -293,18 +292,17 @@ def custom_RFE(X, Y, test_size_perc=0.2, iterations=100, feature_names=None):
 
             X_train, X_test = X[train_index,:], X[test_index,:] 
             Y_train, Y_test = Y[train_index], Y[test_index]
-    
-            
+                
             mean_X_train = np.mean(X_train, axis=0)
             std_X_train = np.std(X_train, axis=0)
             
             X_train_zscored = (X_train - mean_X_train) / std_X_train
             
-            #use the mean and std of the training set to scale the test set
+            # Use the mean and std of the training set to scale the test set
             X_test_zscored = (X_test - mean_X_train) / std_X_train
             
             # Compute the mean and std for the target variable 
-            # normalize train and test Y
+            # standardize train and test Y
             mean_Y_train = np.mean(Y_train)
             std_Y_train = np.std(Y_train)
     
