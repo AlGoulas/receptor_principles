@@ -13,7 +13,7 @@ Receptor density data are acquired via histological processing of human tissue (
 # Use
 Create a virtual environment (e.g., with conda) with the specifications enlisted in requirements.txt. Download or clone this repository. If the virtual environment was created sucessfully, no further installations are required - the main .py file can be executed (DistillPrinciples.py).
 
-To do so, you have to specifify the following folder and paths in the DistillPrinciples.py file:
+To do so, you have to specify the following folder and paths in the DistillPrinciples.py file:
 1. Folder to store the results (figures and tables). E.g., 
 ```
 results_folder = Path("/Users/.../receptor-principles/results")
