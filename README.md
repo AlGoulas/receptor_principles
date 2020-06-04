@@ -16,11 +16,11 @@ Create a virtual environment (e.g., with conda) with the specifications enlisted
 To do so, you have to specifify the following folder and paths in the DistillPrinciples.py file:
 1. Folder to store the results (figures and tables). E.g., 
 ```
-results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/results")
+results_folder = Path("/Users/.../receptor-principles/results")
 ```
 2. Folder to load the necessary data (.npy files in the recept_data folder of this repository). E.g.,
 ```
-data_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/data")
+data_folder = Path("/Users/.../receptor-principles/data")
 ```
 
 # Data
