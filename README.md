@@ -1,5 +1,5 @@
 # Organizational principles of receptor distribution in the human brain
-Uncover receptor principles of the human brain with multivariate statistics and machine learning
+Mine receptor autoradiography data with statistics and machine learning
 
 ![Receptors_natural axis](receptors_natural_axis.png)
 
