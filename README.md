@@ -1,5 +1,4 @@
-# Organizational principles of receptor distribution in the human brain
-Data mining of receptor autoradiography data with statistics and machine learning
+# Data mining of receptor autoradiography data with statistics and machine learning
 
 ![Receptors_natural axis](receptors_natural_axis.png)
 
