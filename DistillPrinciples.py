@@ -3,6 +3,7 @@
 from pathlib import Path
 from random import randint
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -54,11 +55,9 @@ def compute_excinh(Data_I, Data_G, Data_S, ExcInh_Index):
    
     return ExcInh_I, ExcInh_G, ExcInh_S, indexes_notzeros
 
-
 # Compute excitation/inhibition ratio
 # ReceptorTypes_IonoMetabo: 1=Ionotropic receptor 2=Metabotropic receptor
 def compute_iono_metabo(Data_I, Data_G, Data_S, ReceptorTypes_IonoMetabo):
-    
     #Compute the sum of excitatory and inhitory receptors
     result = np.where(ReceptorTypes_IonoMetabo == 1)
     indexes_iono = result[0]
@@ -86,11 +85,8 @@ def compute_iono_metabo(Data_I, Data_G, Data_S, ReceptorTypes_IonoMetabo):
    
     return Iono_I, Iono_G, Iono_S, Metabo_I, Metabo_G, Metabo_S, indexes_notzeros
 
-
-
 # Biplot
 def mybiplot(score, coeff, path_name_saved_file=None, score_labels=None, coeff_labels=None):
-    
     scale_coeff = 0.9
     
     xs = score[:,0]
@@ -112,7 +108,6 @@ def mybiplot(score, coeff, path_name_saved_file=None, score_labels=None, coeff_l
     
     #Plot coefficients
     for i in range(n):
-        
         plt.arrow(0, 0, scale_coeff*coeff[i,0], scale_coeff*coeff[i,1], color = 'r', alpha = 0.5)
         
         if coeff_labels is None:
@@ -122,13 +117,8 @@ def mybiplot(score, coeff, path_name_saved_file=None, score_labels=None, coeff_l
             plt.text(scale_coeff*coeff[i,0]* 1.15, scale_coeff*coeff[i,1] * 1.15, coeff_labels[i], 
                      color = 'g', ha = 'center', va = 'center', fontsize=10)
             
-
     plt.grid()
-
-    
     plt.savefig(path_name_saved_file, format="svg")
-
-
 
 #Calculate entropy of each area across receptors
 def calculate_entropy(ReceptData, normalize=True):
@@ -158,8 +148,6 @@ def calculate_entropy(ReceptData, normalize=True):
         / np.log(len(current_receptor_profile));
     
     return H
-
-
 
 # Plot and save scatterplot
 def plot_save_scatter_plot(
@@ -191,8 +179,7 @@ def plot_save_scatter_plot(
     plt.ylabel(y_label)
 
     plt.savefig(path_name_saved_file, format="svg")
-    
-    
+       
 def run_ancova(Y, X, Covariate, filename_results=None):
    
     data = {'Y':Y, 'X':X, 'Cov':Covariate}
@@ -208,8 +195,6 @@ def run_ancova(Y, X, Covariate, filename_results=None):
     print(fit.summary(), file=open(filename_results, "w")) 
     
     return fit 
-
-
 
 def plot_rank_ordered_values(
         values, 
@@ -249,11 +234,8 @@ def plot_rank_ordered_values(
     # Save figure in the spacified path with the specified name
     plt.savefig(path_name_saved_file, format="svg")
     
-    
 def custom_RFE(X, Y, test_size_perc=0.2, iterations=100, feature_names=None):
-    
     svr = SVR(kernel="linear", C=1.0)
-   
     # Initialize variables to keep the relevant info
     size_X = X.shape
     total_rfe_steps = size_X[1]-1
@@ -267,11 +249,9 @@ def custom_RFE(X, Y, test_size_perc=0.2, iterations=100, feature_names=None):
     # sp = ShuffleSplit(n_splits=1, test_size=test_size_perc)
     
     size_Y = Y.shape
-    
     Mean_AllPredictions = np.asarray([[0.] * total_rfe_steps] * size_Y[0])
     
-    for rfe_steps in range(0, total_rfe_steps):
-
+    for rfe_steps in range(total_rfe_steps):
         size_X = X.shape
         features = size_X[1] - 1
         all_feature_selected = np.array([0]*size_X[1])
@@ -281,8 +261,7 @@ def custom_RFE(X, Y, test_size_perc=0.2, iterations=100, feature_names=None):
         rfe = RFE(estimator=svr, n_features_to_select=features, step=1, verbose=0)
         AllPredictions = np.asarray([[0.] * iterations] * size_Y[0])
         
-        for iter in range(0, iterations):
-    
+        for iter in range(iterations):
             index = np.random.permutation(size_Y[0])
             
             split_position = np.round(test_size_perc * size_Y[0])
@@ -376,13 +355,69 @@ def custom_RFE(X, Y, test_size_perc=0.2, iterations=100, feature_names=None):
 
     return MSE_of_rfe_step, FeatureNames_RFE_steps, FeatureScores_RFE_steps, Mean_AllPredictions 
 
+def show_img(x, title=None, xlabel=None, ylabel=None, x_tick_labels=None):
+    plt.figure()
+    plt.imshow(x, extent=[0,5,0,5])
+    plt.colorbar()
     
+    ax = plt.gca()
+    ax.set_xticklabels(x_tick_labels)
+    plt.xticks(rotation=90)
     
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+    plt.title(title)
+    plt.show()
+
+def read_area_colors(path_to_file):
+    # Open the file and read it line by line
+    # Extract the area name, RGB color and convert the lΩΩΩatter to HEX
+    f = open(path_to_file, "r")
+    area_colors = {}
+    for line in f:
+        s = line.split(';')#first string is area name second are the seperated (with ',') RGB values
+        rgb = s[1].split(',')#rgb contains the seperate RGB values [0 255]
+        hex_value = matplotlib.colors.to_hex([int(rgb[0])/255,  
+                                              int(rgb[1])/255,  
+                                              int(rgb[2])/255
+                                             ]
+                                            )
+        area_colors[s[0]] = hex_value
+    f.close()     
+      
+    return area_colors 
+
+def read_replace_write(path_to_file, 
+                       path_to_new=None, 
+                       filename_new=None,
+                       list_to_replace=None,
+                       list_new=None
+                       ):
+    # Open the file and read it line by line
+    # Extract the area name, RGB color and convert the latter to HEX
+    f_read = open(path_to_file, "r")
+    path_to_save = path_to_new / filename_new
+    f_write = open(path_to_save, "w")
+    
+    # Read the file line by line and check each time if any item from the 
+    # list_to_replace is present
+    for line in f_read:
+        is_in_list = [v in line for v in list_to_replace]# check if list_to_replace are in line 
+        if any(is_in_list):
+            print('Found pattern\n')
+            idx = [i for i,item in enumerate(is_in_list) if item==True]#get the list_to_replace of items found in line
+            for i in idx: 
+                line = line.replace(list_to_replace[i], list_new) 
+        f_write.write(line)    
+        
+    f_read.close() 
+    f_write.close() 
+
 # Path to save results - individual names of files will be appended to this path
-results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/results")
+results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/development/receptor-principles/results")
 
 # Path with the data in .npy format
-data_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/receptor-principles/data")
+data_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/development/receptor-principles/data")
 
 # Load all the necessary data
 file_to_open = data_folder / "ReceptData_I.npy"
@@ -429,9 +464,7 @@ ExcInh_S = ExcInh_S[indexes_notzeros]
 RegionNames_Reduced = np.array(RegionNames)[indexes_notzeros]
 
 # Plot rank ordered exc/inh for each region and laminar compartment
-
 file_to_save = results_folder / "ExcInh_RankOrdered_I.svg"
-
 
 plot_rank_ordered_values(ExcInh_I, 
                          labels=RegionNames_Reduced, 
@@ -470,7 +503,6 @@ plot_rank_ordered_values(ExcInh_S,
 # Calculate Entropy
 
 # Normalize densities per receptor
-
 max_ReceptData_Reduced_I = np.max(ReceptData_Reduced_I, axis=0)
 max_ReceptData_Reduced_G = np.max(ReceptData_Reduced_G, axis=0)
 max_ReceptData_Reduced_S = np.max(ReceptData_Reduced_S, axis=0)
@@ -482,7 +514,6 @@ ReceptData_Reduced_S_norm = ReceptData_Reduced_S / max_ReceptData_Reduced_S
 H_I = calculate_entropy(ReceptData_Reduced_I_norm)
 H_G = calculate_entropy(ReceptData_Reduced_G_norm)
 H_S = calculate_entropy(ReceptData_Reduced_S_norm)
-
 
 file_to_save = results_folder / "H_RankOrdered_I.svg"
 
@@ -520,19 +551,14 @@ plot_rank_ordered_values(H_S,
                          y_max=np.max(H_S)
                          )
 
-
 # Create a list of receptor names with a prefix indicating the layer 
 # (for PCA visualization)
 ReceptorNames_I_G_S = [ ]
-
-for i in range(len(ReceptorNames)*3): 
-    
+for i in range(len(ReceptorNames)*3):   
     if i >= 0 and i <= 14:
         ReceptorNames_I_G_S.append(ReceptorNames[i] + '_I')
-    
     if i > 14 and i <= 29:
         ReceptorNames_I_G_S.append(ReceptorNames[i-15] + '_G')
-    
     if i > 29 and i <= 44:
         ReceptorNames_I_G_S.append(ReceptorNames[i-30] + '_S')
 
@@ -549,11 +575,9 @@ coeff = np.transpose(pca.components_[0:2, :])# Do we have to transpose? Yes!
 PC1 = scores[:,0] 
 PC1_ranked = rankdata(PC1) 
 
-
 # Flip the sign for visualization purposes
 PC1_2 = scores[:, 0:2]
 PC1_2[:,1] = -1*PC1_2[:, 1]
-
 coeff[:,1] = -1*coeff[:, 1] 
 
 file_to_save = results_folder / "biplot.svg"
@@ -618,7 +642,6 @@ ExcInh = np.concatenate((ExcInh_I, ExcInh_G, ExcInh_S),
 ExcInh_ranked = rankdata(ExcInh)
 
 # Make a categorical predictor indicating what is supra=1 granular=2 infra=3
-
 supra_index = np.asarray([3]*ExcInh_I.size)
 granular_index = np.asarray([2]*ExcInh_I.size)
 infra_index = np.asarray([1]*ExcInh_I.size)
@@ -679,7 +702,6 @@ plot_save_scatter_plot(PC1,
                        )
 
 #Supragranular layers
-
 file_to_save = results_folder / "H_S.svg"
 
 plot_save_scatter_plot(PC1, 
@@ -742,7 +764,6 @@ Metabo_I = Metabo_I[indexes_notzeros_ionometabo]
 Metabo_S = Metabo_S[indexes_notzeros_ionometabo]  
 
 # Make a categorical predictor indicating that iono =1 and metabo =2
-
 ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked), 
                                 axis=0)
 
@@ -922,7 +943,6 @@ plot_save_scatter_plot(PC1,
                        )
 
 #Granular layers - Ionotropic
-
 file_to_save = results_folder / "Iono_G.svg"
 
 plot_save_scatter_plot(PC1, 
@@ -969,7 +989,6 @@ plot_save_scatter_plot(PC1,
                        x_label="PC1", 
                        y_label="Receptor Density"
                        )
-
 
 # Examine the relation with the histological gradient of BigBrain
 # First align the BigBrain G1 wit hthe receptor data by removing the agranular
@@ -1046,13 +1065,11 @@ plot_save_scatter_plot(G1_BigBrain_reduced,
     
 #Fit an ANCOVA model to uncover if the relation of PC1 and Entropy of receptor
 #density is meadiated by the Layer type
-
 H = np.concatenate((H_I, H_G, H_S), 
                    axis=0)
 H_ranked = rankdata(H)
 
 #Make a categorical predictor indicating what is supra=1 granular=2 infra=3
-
 supra_index = np.asarray([1]*H_I.size)
 granular_index = np.asarray([2]*H_I.size)
 infra_index = np.asarray([3]*H_I.size)
@@ -1070,7 +1087,6 @@ fit_H_G1BigBrain = run_ancova(G1_BigBrain_concatanated,
                              Layer, 
                              filename_results=file_to_save)
 
-
 # Find the receptors that are the the most predictive of the cytoarchitectonic 
 # gradient
 
@@ -1085,7 +1101,7 @@ ReceptorProfiles = X[indexes_not_nan,:]
  Mean_AllPredictions) = custom_RFE(ReceptorProfiles, 
                                    G1_BigBrain_reduced, 
                                    test_size_perc=0.2, 
-                                   iterations=1000, 
+                                   iterations=100, 
                                    feature_names=ReceptorNames_I_G_S
                                    )
 
@@ -1099,7 +1115,7 @@ G1_BigBrain_reduced_null = G1_BigBrain_reduced[np.random.permutation(len(G1_BigB
  Mean_AllPredictions_null) = custom_RFE(ReceptorProfiles, 
                                         G1_BigBrain_reduced_null, 
                                         test_size_perc=0.2, 
-                                        iterations=1000, 
+                                        iterations=100, 
                                         feature_names=ReceptorNames_I_G_S
                                         )
 
@@ -1123,7 +1139,6 @@ plt.errorbar(range(size_RFE[1]), mean_MSE_null, yerr=std_MSE_null)
 
 # Save rfe results figure
 file_to_save = results_folder / "rfe_performance.svg"
-
 plt.savefig(file_to_save, format="svg")
 
 # Compute an "importance score" for each receptor. The score is simply the 
@@ -1135,13 +1150,9 @@ best_iteration = best_iteration[0]
 Feature_Scores = np.array([0]*len(ReceptorNames_I_G_S))
 
 for index,feature in enumerate(ReceptorNames_I_G_S):
-    
     present = 0
-    
     for iterations in range(best_iteration[0]):
-        
         features_of_iteration = FeatureNames_RFE_steps[iterations]
-        
         if(features_of_iteration.count(feature) > 0):
             present = present + 1
             
@@ -1153,13 +1164,21 @@ layer_wise_featurescores = np.vstack((Feature_Scores[30:45:1],
                             Feature_Scores[0:15:1]))
 
 fig = plt.figure()
-fig.set_size_inches(10, 10) 
+fig.set_size_inches(10, 5) 
+plt.imshow(layer_wise_featurescores, extent=[0, 
+                                             layer_wise_featurescores.shape[1], 
+                                             0, 
+                                             layer_wise_featurescores.shape[0]])
+plt.colorbar()
+ax = plt.gca() 
+ax.set_xticklabels(list(ReceptorNames))
+ax.set_yticklabels(['IG', 'G', 'SG'])
+plt.xticks(rotation=90)
 
-plt.imshow(layer_wise_featurescores)
+plt.ylabel('Layers')
+plt.xlabel('Receptors')
+plt.title('Consistency of feature selection')
 
-file_to_save = results_folder / "layer_wise_featurescores.svg"
-
-plt.savefig(file_to_save, format="svg")
- 
-
+file_to_save = results_folder / 'layer_wise_featurescores.svg'
+plt.savefig(file_to_save, format='svg')
  
