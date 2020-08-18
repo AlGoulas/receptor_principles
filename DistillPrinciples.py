@@ -5,6 +5,7 @@ from random import randint
 
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
@@ -371,7 +372,7 @@ def show_img(x, title=None, xlabel=None, ylabel=None, x_tick_labels=None):
 
 def read_area_colors(path_to_file):
     # Open the file and read it line by line
-    # Extract the area name, RGB color and convert the lΩΩΩatter to HEX
+    # Extract the area name, RGB color and convert the latter to HEX
     f = open(path_to_file, "r")
     area_colors = {}
     for line in f:
@@ -404,7 +405,6 @@ def read_replace_write(path_to_file,
     for line in f_read:
         is_in_list = [v in line for v in list_to_replace]# check if list_to_replace are in line 
         if any(is_in_list):
-            print('Found pattern\n')
             idx = [i for i,item in enumerate(is_in_list) if item==True]#get the list_to_replace of items found in line
             for i in idx: 
                 line = line.replace(list_to_replace[i], list_new) 
@@ -413,6 +413,50 @@ def read_replace_write(path_to_file,
     f_read.close() 
     f_write.close() 
 
+def values_to_colormap_hex(area_value, 
+                           colormap=cm.viridis, 
+                           min_val=None, 
+                           max_val=None):
+    '''
+    Given the values in values, return a list of HEX colors representing
+    the color-tranformed values based on the provided colormap.
+    
+    Input
+    -----
+    area_value: dict, key:area names, str value: value of area, float
+    
+    colormap: matplotlib.colors.ListedColormap object, default cm.viridis
+    
+    min_val: float, min value for constructing the colormap, 
+        default None, hence internally set to: min([*area_value.values()])
+        
+    max_val: float, max value for constructing the colormap, 
+        default None, hence internally set to: max([*area_value.values()]) 
+        
+    Output
+    ------
+    area_color: dict, 
+        key: str, area names, same as area_value input arg
+        value: str, value of area tranformed to HEX color      
+    
+    '''
+    # Set min max if not specified 
+    if min_val is None: min_val = min([*area_value.values()])
+    if max_val is None: max_val = max([*area_value.values()])
+    
+    norm = matplotlib.colors.Normalize(vmin = min_val, 
+                                       vmax = max_val)
+    cmap = colormap
+    m = cm.ScalarMappable(norm=norm, cmap=cmap)
+    
+    # Create a dict with area as key and the HEX value-to-colormap as value 
+    area_color={}
+    for key,value in zip(area_value.keys(), area_value.values()): 
+        rgba = m.to_rgba(value)
+        area_color[key] = matplotlib.colors.to_hex(rgba)
+    
+    return area_color
+    
 # Path to save results - individual names of files will be appended to this path
 results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/development/receptor-principles/results")
 
@@ -443,6 +487,14 @@ ReceptorTypes_IonoMetabo = np.load(file_to_open)
 
 file_to_open = data_folder / "G1_BigBrain.npy"
 G1_BigBrain = np.load(file_to_open)
+
+# Load RGB valeus for each region - used for visualization
+area_colors_file = "/Users/alexandrosgoulas/Data/work-stuff/python-code/packages/receptor_principles/visualization/areas_RGB.txt"
+map_file_lateral = "/Users/alexandrosgoulas/Data/work-stuff/python-code/packages/receptor_principles/visualization/human_map_lateral.svg" 
+map_file_medial = "/Users/alexandrosgoulas/Data/work-stuff/python-code/packages/receptor_principles/visualization/human_map_medial.svg" 
+
+# Load the HEX color and the area names in a dictionary (key: names, values: HEX)
+areas_hex = read_area_colors(area_colors_file)
 
 # Analyze the data     
 
