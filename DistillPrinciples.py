@@ -407,7 +407,7 @@ def read_replace_write(path_to_file,
         if any(is_in_list):
             idx = [i for i,item in enumerate(is_in_list) if item==True]#get the list_to_replace of items found in line
             for i in idx: 
-                line = line.replace(list_to_replace[i], list_new) 
+                line = line.replace(list_to_replace[i], list_new[i]) 
         f_write.write(line)    
         
     f_read.close() 
@@ -456,6 +456,44 @@ def values_to_colormap_hex(area_value,
         area_color[key] = matplotlib.colors.to_hex(rgba)
     
     return area_color
+
+def create_transformation_list(area_map_values, area_color_values_to_map=None):
+    '''
+    Given two dictionaries area_map_values, area_color_values_to_map, create 
+    two lists old_values, new_values with 1:1 correspondance specifying an old
+    and new values, such that new_values contains the values of 
+    area_new_color_values corresponding to keys that are also found in
+    area_map_values.
+    
+    Input
+    -----
+    area_map_values: dict, 
+        key: str, area names, same as area_value input arg
+        value: str, value of area tranformed to HEX color 
+        
+    area_color_values_to_map: same as area_map_values
+
+    NOTE: len(area_map_values) not necessary len(area_color_values_to_map)
+
+    Output
+    ------
+    old_values: list, values in area_map_values that correspond to existing 
+        keys in area_map_values, a search corresponding to an iteration of keys 
+        in area_color_values_to_map
+        
+    new_values: list, values in area_color_values_to_map that correspond to 
+        area_color_values_to_map keys found in area_map_values keys 
+    
+    '''
+    old_values = []
+    new_values = []
+    for key,value in zip(area_color_values_to_map.keys(), 
+                         area_color_values_to_map.values()):
+        if key in area_map_values:
+            old_values.append(area_map_values[key])
+            new_values.append(value)
+    
+    return old_values, new_values  
     
 # Path to save results - individual names of files will be appended to this path
 results_folder = Path("/Users/alexandrosgoulas/Data/work-stuff/python-code/development/receptor-principles/results")
@@ -514,6 +552,38 @@ ExcInh_I = ExcInh_I[indexes_notzeros]
 ExcInh_S = ExcInh_S[indexes_notzeros]
 
 RegionNames_Reduced = np.array(RegionNames)[indexes_notzeros]
+
+# Visualize ExcInh_I, ExcInh_G, ExcInh_S in the surface
+All_Values = [ExcInh_I, ExcInh_G, ExcInh_S]
+All_Acronyms = ['ExcInh_I', 'ExcInh_G', 'ExcInh_S']
+
+for excinh, acronym in zip(All_Values, All_Acronyms):
+    # Dict with area names as keys and PC1 values as values
+    areas_values = dict(zip(RegionNames_Reduced, excinh)) 
+    
+    # Create dict with names as keys and values-to-hexcolor as values
+    area_color_hex = values_to_colormap_hex(areas_values, 
+                                            colormap=cm.viridis
+                                            )
+    
+    # Create old and new corresponding lists of HEX colors 
+    # new_list contains the HEX colors to be painted in the svg file
+    old_list, new_list = create_transformation_list(areas_hex, 
+                                                    area_color_values_to_map=area_color_hex)
+    
+    read_replace_write(map_file_lateral, 
+                       path_to_new=results_folder, 
+                       filename_new= acronym + '_map_lateral.svg',
+                       list_to_replace=old_list,
+                       list_new=new_list
+                       )
+    
+    read_replace_write(map_file_medial, 
+                       path_to_new=results_folder, 
+                       filename_new= acronym + '_map_medial.svg',
+                       list_to_replace=old_list,
+                       list_new=new_list
+                       )
 
 # Plot rank ordered exc/inh for each region and laminar compartment
 file_to_save = results_folder / "ExcInh_RankOrdered_I.svg"
@@ -603,6 +673,38 @@ plot_rank_ordered_values(H_S,
                          y_max=np.max(H_S)
                          )
 
+# Visualize H_I, H_G, H_S in the surface
+All_Values = [H_I, H_G, H_S]
+All_Acronyms = ['H_I', 'H_G', 'H_S']
+
+for excinh, acronym in zip(All_Values, All_Acronyms):
+    # Dict with area names as keys and PC1 values as values
+    areas_values = dict(zip(RegionNames_Reduced, excinh)) 
+    
+    # Create dict with names as keys and values-to-hexcolor as values
+    area_color_hex = values_to_colormap_hex(areas_values, 
+                                            colormap=cm.viridis
+                                            )
+    
+    # Create old and new corresponding lists of HEX colors 
+    # new_list contains the HEX colors to be painted in the svg file
+    old_list, new_list = create_transformation_list(areas_hex, 
+                                                    area_color_values_to_map=area_color_hex)
+    
+    read_replace_write(map_file_lateral, 
+                       path_to_new=results_folder, 
+                       filename_new= acronym + '_map_lateral.svg',
+                       list_to_replace=old_list,
+                       list_new=new_list
+                       )
+    
+    read_replace_write(map_file_medial, 
+                       path_to_new=results_folder, 
+                       filename_new= acronym + '_map_medial.svg',
+                       list_to_replace=old_list,
+                       list_new=new_list
+                       )
+
 # Create a list of receptor names with a prefix indicating the layer 
 # (for PCA visualization)
 ReceptorNames_I_G_S = [ ]
@@ -641,7 +743,36 @@ mybiplot(PC1_2,
          coeff_labels=ReceptorNames_I_G_S
          )
 
-# Calcualte the correlation between EscInh across PC1 and plot the data
+# Visualize PC1 in flat maps
+
+# Dict with area names as keys and PC1 values as values
+areas_PC1 = dict(zip(RegionNames_Reduced, PC1)) 
+
+# Create dict with names as keys and values-to-hexcolor as values
+area_color_hex = values_to_colormap_hex(areas_PC1, 
+                                        colormap=cm.viridis
+                                        )
+
+# Create old and new corresponding lists of HEX colors 
+# new_list contains the HEX colors to be painted in the svg file
+old_list, new_list = create_transformation_list(areas_hex, 
+                                                area_color_values_to_map=area_color_hex)
+
+read_replace_write(map_file_lateral, 
+                   path_to_new=results_folder, 
+                   filename_new='PC1_map_lateral.svg',
+                   list_to_replace=old_list,
+                   list_new=new_list
+                   )
+
+read_replace_write(map_file_medial, 
+                   path_to_new=results_folder, 
+                   filename_new='PC1_map_medial.svg',
+                   list_to_replace=old_list,
+                   list_new=new_list
+                   )
+
+# Calculate the correlation between ExcInh across PC1 and plot the data
 rho_ExcInh_S, pval_ExcInh_S = spearmanr(PC1, ExcInh_S)
 rho_ExcInh_G, pval_ExcInh_G = spearmanr(PC1, ExcInh_G)  
 rho_ExcInh_I, pval_ExcInh_I = spearmanr(PC1, ExcInh_I)
@@ -798,7 +929,7 @@ sns.boxplot(x="Layer", y="H", data=df, palette="Set3")
 
 file_to_save = results_folder / "H_LayerWise.svg"
 
-plt.savefig(file_to_save, format="svg")
+plt.savefig(file_to_save, format="svg") 
 
 # Estimate overall density of ionotropic and metabotropic receptors and how
 # they relate to PC1
@@ -814,6 +945,39 @@ Iono_S = Iono_S[indexes_notzeros_ionometabo]
 
 Metabo_I = Metabo_I[indexes_notzeros_ionometabo]
 Metabo_S = Metabo_S[indexes_notzeros_ionometabo]  
+
+# Visualize Iono Metabo I, G, S in the surface
+All_Values = [Iono_I, Iono_G, Iono_S, Metabo_I, Metabo_G, Metabo_S]
+All_Acronyms = ['Iono_I', 'Iono_G', 'Iono_S', 'Metabo_I', 'Metabo_G', 'Metabo_S']
+
+for excinh, acronym in zip(All_Values, All_Acronyms):
+    # Dict with area names as keys and PC1 values as values
+    areas_values = dict(zip(RegionNames_Reduced, excinh)) 
+    
+    # Create dict with names as keys and values-to-hexcolor as values
+    area_color_hex = values_to_colormap_hex(areas_values, 
+                                            colormap=cm.viridis
+                                            )
+    
+    # Create old and new corresponding lists of HEX colors 
+    # new_list contains the HEX colors to be painted in the svg file
+    old_list, new_list = create_transformation_list(areas_hex, 
+                                                    area_color_values_to_map=area_color_hex)
+    
+    read_replace_write(map_file_lateral, 
+                       path_to_new=results_folder, 
+                       filename_new= acronym + '_map_lateral.svg',
+                       list_to_replace=old_list,
+                       list_new=new_list
+                       )
+    
+    read_replace_write(map_file_medial, 
+                       path_to_new=results_folder, 
+                       filename_new= acronym + '_map_medial.svg',
+                       list_to_replace=old_list,
+                       list_new=new_list
+                       )
+
 
 # Make a categorical predictor indicating that iono =1 and metabo =2
 ConcPC1_ranked = np.concatenate((PC1_ranked, PC1_ranked), 
