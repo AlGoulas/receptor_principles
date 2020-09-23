@@ -12,8 +12,8 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-import vis_fun
-import analysis_fun
+import visfun
+import analysisfun
 
 #sns.set(context='poster', style='white')
 
@@ -57,13 +57,13 @@ map_file_lateral = "/Users/alexandrosgoulas/Data/work-stuff/python-code/packages
 map_file_medial = "/Users/alexandrosgoulas/Data/work-stuff/python-code/packages/receptor_principles/visualization/human_map_medial.svg" 
 
 # Load the HEX color and the area names in a dictionary (key: names, values: HEX)
-areas_hex = vis_fun.read_area_colors(area_colors_file)
+areas_hex = visfun.read_area_colors(area_colors_file)
 
 # Analyze the data     
 
 # Calculate excitation inhibition 
 (ExcInh_I, ExcInh_G, ExcInh_S, 
- indexes_notzeros) = analysis_fun.compute_excinh(ReceptData_I, 
+ indexes_notzeros) = analysisfun.compute_excinh(ReceptData_I, 
                                                  ReceptData_G, 
                                                  ReceptData_S, 
                                                  ReceptorTypes_ExcInh
@@ -88,23 +88,23 @@ for values, acronym in zip(All_Values, All_Acronyms):
     areas_values = dict(zip(RegionNames_Reduced, values)) 
     
     # Create dict with names as keys and values-to-hexcolor as values
-    area_color_hex = vis_fun.values_to_colormap_hex(areas_values, 
+    area_color_hex = visfun.values_to_colormap_hex(areas_values, 
                                                     colormap=cm.viridis
                                                     )
     
     # Create old and new corresponding lists of HEX colors 
     # new_list contains the HEX colors to be painted in the svg file
-    old_list, new_list = vis_fun.create_transformation_list(areas_hex, 
+    old_list, new_list = visfun.create_transformation_list(areas_hex, 
                                                             area_color_values_to_map=area_color_hex)
     
-    vis_fun.read_replace_write(map_file_lateral, 
+    visfun.read_replace_write(map_file_lateral, 
                                path_to_new=results_folder, 
                                filename_new= acronym + '_map_lateral.svg',
                                list_to_replace=old_list,
                                list_new=new_list
                                )
     
-    vis_fun.read_replace_write(map_file_medial, 
+    visfun.read_replace_write(map_file_medial, 
                                path_to_new=results_folder, 
                                filename_new= acronym + '_map_medial.svg',
                                list_to_replace=old_list,
@@ -112,14 +112,14 @@ for values, acronym in zip(All_Values, All_Acronyms):
                                )
     
     # Visualize and store a colorbar for the plotted surface map values
-    vis_fun.plot_colorbars(values, 
+    visfun.plot_colorbars(values, 
                            path_name=results_folder, 
                            filename=acronym + '_colorbar.svg')
 
 # Plot rank ordered exc/inh for each region and laminar compartment
 file_to_save = results_folder / "ExcInh_RankOrdered_I.svg"
 
-vis_fun.plot_rank_ordered_values(ExcInh_I, 
+visfun.plot_rank_ordered_values(ExcInh_I, 
                                  labels=RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Exc/Inh Infragranular", 
@@ -131,7 +131,7 @@ vis_fun.plot_rank_ordered_values(ExcInh_I,
 
 file_to_save = results_folder / "ExcInh_RankOrdered_G.svg"
 
-vis_fun.plot_rank_ordered_values(ExcInh_G, 
+visfun.plot_rank_ordered_values(ExcInh_G, 
                                  labels=RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Exc/Inh Granular", 
@@ -143,7 +143,7 @@ vis_fun.plot_rank_ordered_values(ExcInh_G,
 
 file_to_save = results_folder / "ExcInh_RankOrdered_S.svg"
 
-vis_fun.plot_rank_ordered_values(ExcInh_S, 
+visfun.plot_rank_ordered_values(ExcInh_S, 
                                  labels=RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Exc/Inh Supragranular", 
@@ -164,13 +164,13 @@ ReceptData_Reduced_I_norm = ReceptData_Reduced_I / max_ReceptData_Reduced_I
 ReceptData_Reduced_G_norm = ReceptData_Reduced_G / max_ReceptData_Reduced_G
 ReceptData_Reduced_S_norm = ReceptData_Reduced_S / max_ReceptData_Reduced_S
 
-H_I = analysis_fun.calculate_entropy(ReceptData_Reduced_I_norm)
-H_G = analysis_fun.calculate_entropy(ReceptData_Reduced_G_norm)
-H_S = analysis_fun.calculate_entropy(ReceptData_Reduced_S_norm)
+H_I = analysisfun.calculate_entropy(ReceptData_Reduced_I_norm)
+H_G = analysisfun.calculate_entropy(ReceptData_Reduced_G_norm)
+H_S = analysisfun.calculate_entropy(ReceptData_Reduced_S_norm)
 
 file_to_save = results_folder / "H_RankOrdered_I.svg"
 
-vis_fun.plot_rank_ordered_values(H_I, 
+visfun.plot_rank_ordered_values(H_I, 
                                  labels=RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save,
                                  title="Rank ordered regions Entropy Infragranular", 
@@ -182,7 +182,7 @@ vis_fun.plot_rank_ordered_values(H_I,
 
 file_to_save = results_folder / "H_RankOrdered_G.svg"
 
-vis_fun.plot_rank_ordered_values(H_G, 
+visfun.plot_rank_ordered_values(H_G, 
                                  labels=RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save,
                                  title="Rank ordered regions Entropy Granular", 
@@ -194,7 +194,7 @@ vis_fun.plot_rank_ordered_values(H_G,
 
 file_to_save = results_folder / "H_RankOrdered_S.svg"
 
-vis_fun.plot_rank_ordered_values(H_S, 
+visfun.plot_rank_ordered_values(H_S, 
                                  labels=RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Entropy Supragranular", 
@@ -213,23 +213,23 @@ for values, acronym in zip(All_Values, All_Acronyms):
     areas_values = dict(zip(RegionNames_Reduced, values)) 
     
     # Create dict with names as keys and values-to-hexcolor as values
-    area_color_hex = vis_fun.values_to_colormap_hex(areas_values, 
+    area_color_hex = visfun.values_to_colormap_hex(areas_values, 
                                                     colormap=cm.viridis
                                                     )
     
     # Create old and new corresponding lists of HEX colors 
     # new_list contains the HEX colors to be painted in the svg file
-    old_list, new_list = vis_fun.create_transformation_list(areas_hex, 
+    old_list, new_list = visfun.create_transformation_list(areas_hex, 
                                                             area_color_values_to_map=area_color_hex)
     
-    vis_fun.read_replace_write(map_file_lateral, 
+    visfun.read_replace_write(map_file_lateral, 
                                path_to_new=results_folder, 
                                filename_new= acronym + '_map_lateral.svg',
                                list_to_replace=old_list,
                                list_new=new_list
                                )
     
-    vis_fun.read_replace_write(map_file_medial, 
+    visfun.read_replace_write(map_file_medial, 
                                path_to_new=results_folder, 
                                filename_new= acronym + '_map_medial.svg',
                                list_to_replace=old_list,
@@ -237,7 +237,7 @@ for values, acronym in zip(All_Values, All_Acronyms):
                                )
     
     # Visualize and store a colorbar for the plotted surface map values
-    vis_fun.plot_colorbars(values, 
+    visfun.plot_colorbars(values, 
                            path_name=results_folder, 
                            filename=acronym + '_colorbar.svg')
 
@@ -272,7 +272,7 @@ coeff[:,1] = -1*coeff[:, 1]
 
 file_to_save = results_folder / "biplot.svg"
 
-vis_fun.mybiplot(PC1_2, 
+visfun.mybiplot(PC1_2, 
                  coeff, 
                  path_name_saved_file=file_to_save, 
                  score_labels=RegionNames_Reduced, 
@@ -285,23 +285,23 @@ vis_fun.mybiplot(PC1_2,
 areas_PC1 = dict(zip(RegionNames_Reduced, PC1)) 
 
 # Create dict with names as keys and values-to-hexcolor as values
-area_color_hex = vis_fun.values_to_colormap_hex(areas_PC1, 
+area_color_hex = visfun.values_to_colormap_hex(areas_PC1, 
                                                 colormap=cm.viridis
                                                 )
 
 # Create old and new corresponding lists of HEX colors 
 # new_list contains the HEX colors to be painted in the svg file
-old_list, new_list = vis_fun.create_transformation_list(areas_hex, 
+old_list, new_list = visfun.create_transformation_list(areas_hex, 
                                                         area_color_values_to_map=area_color_hex)
 
-vis_fun.read_replace_write(map_file_lateral, 
+visfun.read_replace_write(map_file_lateral, 
                            path_to_new=results_folder, 
                            filename_new='PC1_map_lateral.svg',
                            list_to_replace=old_list,
                            list_new=new_list
                            )
 
-vis_fun.read_replace_write(map_file_medial, 
+visfun.read_replace_write(map_file_medial, 
                            path_to_new=results_folder, 
                            filename_new='PC1_map_medial.svg',
                            list_to_replace=old_list,
@@ -318,7 +318,7 @@ rho_ExcInh_I, pval_ExcInh_I = spearmanr(PC1, ExcInh_I)
 # Infragranular layers
 file_to_save = results_folder / "ExcInh_I.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                ExcInh_I, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save,
@@ -330,7 +330,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 # Granular layers
 file_to_save = results_folder / "ExcInh_G.svg"
 
-vis_fun.plot_save_scatter_plot(PC1,
+visfun.plot_save_scatter_plot(PC1,
                                ExcInh_G, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -342,7 +342,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 # Supragranular layers
 file_to_save = results_folder / "ExcInh_S.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                ExcInh_S, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -370,7 +370,7 @@ Layer = np.concatenate((infra_index, granular_index, supra_index),
 
 file_to_save = results_folder / "summary_fit_ExcInh.txt" 
 
-fit_ExcInh = analysis_fun.run_ancova(ConcPC1_ranked,
+fit_ExcInh = analysisfun.run_ancova(ConcPC1_ranked,
                                      ExcInh_ranked, 
                                      Layer, 
                                      filename_results=file_to_save
@@ -399,7 +399,7 @@ rho_H_G, pval_H_G = spearmanr(PC1, H_G)
 #Infragranular layers
 file_to_save = results_folder / "H_I.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                H_I, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -411,7 +411,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 #Granular layers
 file_to_save = results_folder / "H_G.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                H_G, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -423,7 +423,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 #Supragranular layers
 file_to_save = results_folder / "H_S.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                H_S, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -448,7 +448,7 @@ Layer = np.concatenate((infra_index, granular_index, supra_index),
 
 file_to_save = results_folder / "summary_fit_H.txt"
 
-fit_H = analysis_fun.run_ancova(ConcPC1_ranked, 
+fit_H = analysisfun.run_ancova(ConcPC1_ranked, 
                                 H_ranked, 
                                 Layer, 
                                 filename_results=file_to_save
@@ -471,7 +471,7 @@ plt.savefig(file_to_save, format="svg")
 # they relate to PC1
 (Iono_I, Iono_G, Iono_S, 
  Metabo_I, Metabo_G, Metabo_S, 
- indexes_notzeros_ionometabo) = analysis_fun.compute_iono_metabo(ReceptData_I,
+ indexes_notzeros_ionometabo) = analysisfun.compute_iono_metabo(ReceptData_I,
                                                                  ReceptData_G,
                                                                  ReceptData_S,
                                                                  ReceptorTypes_IonoMetabo
@@ -492,23 +492,23 @@ for values, acronym in zip(All_Values, All_Acronyms):
     areas_values = dict(zip(RegionNames_Reduced, values)) 
     
     # Create dict with names as keys and values-to-hexcolor as values
-    area_color_hex = vis_fun.values_to_colormap_hex(areas_values, 
+    area_color_hex = visfun.values_to_colormap_hex(areas_values, 
                                                     colormap=cm.viridis
                                                     )
     
     # Create old and new corresponding lists of HEX colors 
     # new_list contains the HEX colors to be painted in the svg file
-    old_list, new_list = vis_fun.create_transformation_list(areas_hex, 
+    old_list, new_list = visfun.create_transformation_list(areas_hex, 
                                                             area_color_values_to_map=area_color_hex)
     
-    vis_fun.read_replace_write(map_file_lateral, 
+    visfun.read_replace_write(map_file_lateral, 
                                path_to_new=results_folder, 
                                filename_new= acronym + '_map_lateral.svg',
                                list_to_replace=old_list,
                                list_new=new_list
                                )
     
-    vis_fun.read_replace_write(map_file_medial, 
+    visfun.read_replace_write(map_file_medial, 
                                path_to_new=results_folder, 
                                filename_new= acronym + '_map_medial.svg',
                                list_to_replace=old_list,
@@ -516,7 +516,7 @@ for values, acronym in zip(All_Values, All_Acronyms):
                                )
     
     # Visualize and store a colorbar for the plotted surface map values
-    vis_fun.plot_colorbars(values, 
+    visfun.plot_colorbars(values, 
                            path_name=results_folder, 
                            filename=acronym + '_colorbar.svg')
 
@@ -549,7 +549,7 @@ IonoMetaboDensity_S_ranked = rankdata(IonoMetaboDensity_S)
 # Iono
 file_to_save = results_folder / "Iono_RankOrdered_I.svg"
 
-vis_fun.plot_rank_ordered_values(Iono_I, 
+visfun.plot_rank_ordered_values(Iono_I, 
                                  RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Iono Infragranular", 
@@ -561,7 +561,7 @@ vis_fun.plot_rank_ordered_values(Iono_I,
 
 file_to_save = results_folder / "Iono_RankOrdered_G.svg"
 
-vis_fun.plot_rank_ordered_values(Iono_G, 
+visfun.plot_rank_ordered_values(Iono_G, 
                                  RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Iono Granular",
@@ -573,7 +573,7 @@ vis_fun.plot_rank_ordered_values(Iono_G,
 
 file_to_save = results_folder / "Iono_RankOrdered_S.svg"
 
-vis_fun.plot_rank_ordered_values(Iono_S, 
+visfun.plot_rank_ordered_values(Iono_S, 
                                  RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Iono Supragranular", 
@@ -586,7 +586,7 @@ vis_fun.plot_rank_ordered_values(Iono_S,
 # Metabo
 file_to_save = results_folder / "Metabo_RankOrdered_I.svg"
 
-vis_fun.plot_rank_ordered_values(Metabo_I, 
+visfun.plot_rank_ordered_values(Metabo_I, 
                                  RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Metabo Infragranular", 
@@ -598,7 +598,7 @@ vis_fun.plot_rank_ordered_values(Metabo_I,
 
 file_to_save = results_folder / "Metabo_RankOrdered_G.svg"
 
-vis_fun.plot_rank_ordered_values(Metabo_G, 
+visfun.plot_rank_ordered_values(Metabo_G, 
                                  RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Metabo Granular", 
@@ -610,7 +610,7 @@ vis_fun.plot_rank_ordered_values(Metabo_G,
 
 file_to_save = results_folder / "Metabo_RankOrdered_S.svg"
 
-vis_fun.plot_rank_ordered_values(Metabo_S, 
+visfun.plot_rank_ordered_values(Metabo_S, 
                                  RegionNames_Reduced, 
                                  path_name_saved_file=file_to_save, 
                                  title="Rank ordered regions Metabo Supragranular", 
@@ -651,7 +651,7 @@ plt.savefig(file_to_save, format="svg")
 
 file_to_save = results_folder / "summary_fit_IonoMetabo_I.txt"
 
-fit_IonoMetaboDensity_I = analysis_fun.run_ancova(ConcPC1_ranked, 
+fit_IonoMetaboDensity_I = analysisfun.run_ancova(ConcPC1_ranked, 
                                                   IonoMetaboDensity_I_ranked, 
                                                   ReceptorType, 
                                                   filename_results=file_to_save
@@ -659,7 +659,7 @@ fit_IonoMetaboDensity_I = analysis_fun.run_ancova(ConcPC1_ranked,
 
 file_to_save = results_folder / "summary_fit_IonoMetabo_G.txt"
 
-fit_IonoMetaboDensity_G = analysis_fun.run_ancova(ConcPC1_ranked, 
+fit_IonoMetaboDensity_G = analysisfun.run_ancova(ConcPC1_ranked, 
                                                   IonoMetaboDensity_G_ranked, 
                                                   ReceptorType, 
                                                   filename_results=file_to_save
@@ -667,7 +667,7 @@ fit_IonoMetaboDensity_G = analysis_fun.run_ancova(ConcPC1_ranked,
 
 file_to_save = results_folder / "summary_fit_IonoMetabo_S.txt"
 
-fit_IonoMetaboDensity_S = analysis_fun.run_ancova(ConcPC1_ranked, 
+fit_IonoMetaboDensity_S = analysisfun.run_ancova(ConcPC1_ranked, 
                                                   IonoMetaboDensity_S_ranked, 
                                                   ReceptorType, 
                                                   filename_results=file_to_save
@@ -679,7 +679,7 @@ fit_IonoMetaboDensity_S = analysis_fun.run_ancova(ConcPC1_ranked,
 #Supragranular layers - Ionotropic
 file_to_save = results_folder / "Iono_S.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                Iono_S, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -691,7 +691,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 #Supragranular layers - Metabotropic
 file_to_save = results_folder / "Metabo_S.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                Metabo_S, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -703,7 +703,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 #Granular layers - Ionotropic
 file_to_save = results_folder / "Iono_G.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                Iono_G, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -715,7 +715,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 # Granular layers - Metabotropic
 file_to_save = results_folder / "Metabo_G.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                Metabo_G, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -727,7 +727,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 # Infragranular layers - Ionotropic
 file_to_save = results_folder / "Iono_I.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                Iono_I, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -739,7 +739,7 @@ vis_fun.plot_save_scatter_plot(PC1,
 # Infragranular layers - Metabotropic
 file_to_save = results_folder / "Metabo_I.svg"
 
-vis_fun.plot_save_scatter_plot(PC1, 
+visfun.plot_save_scatter_plot(PC1, 
                                Metabo_I, 
                                dataPoints_names=RegionNames_Reduced, 
                                path_name_saved_file=file_to_save, 
@@ -765,7 +765,7 @@ PC1_reduced = PC1[indexes_not_nan]
 
 file_to_save = results_folder / "PC1_G1BigBrain.svg"
 
-vis_fun.plot_save_scatter_plot(PC1_reduced, 
+visfun.plot_save_scatter_plot(PC1_reduced, 
                                G1_BigBrain_reduced, 
                                dataPoints_names=RegionNames_Reduced_Further, 
                                path_name_saved_file=file_to_save, 
@@ -787,7 +787,7 @@ H_S = H_S[indexes_not_nan]
 # Infragranular layers
 file_to_save = results_folder / "H_I_G1BigBrain.svg"
 
-vis_fun.plot_save_scatter_plot(G1_BigBrain_reduced, 
+visfun.plot_save_scatter_plot(G1_BigBrain_reduced, 
                                H_I, 
                                dataPoints_names=RegionNames_Reduced_Further, 
                                path_name_saved_file=file_to_save, 
@@ -799,7 +799,7 @@ vis_fun.plot_save_scatter_plot(G1_BigBrain_reduced,
 # Granular layers
 file_to_save = results_folder / "H_G_G1BigBrain.svg"
 
-vis_fun.plot_save_scatter_plot(G1_BigBrain_reduced, 
+visfun.plot_save_scatter_plot(G1_BigBrain_reduced, 
                                H_G, 
                                dataPoints_names=RegionNames_Reduced_Further, 
                                path_name_saved_file=file_to_save, 
@@ -812,7 +812,7 @@ vis_fun.plot_save_scatter_plot(G1_BigBrain_reduced,
 
 file_to_save = results_folder / "H_S_G1BigBrain.svg"
 
-vis_fun.plot_save_scatter_plot(G1_BigBrain_reduced, 
+visfun.plot_save_scatter_plot(G1_BigBrain_reduced, 
                                H_S, 
                                dataPoints_names=RegionNames_Reduced_Further, 
                                path_name_saved_file=file_to_save, 
@@ -840,7 +840,7 @@ G1_BigBrain_concatanated = np.concatenate((G1_BigBrain_reduced, G1_BigBrain_redu
 
 file_to_save = results_folder / "summary_fit_H_G1BigBrain.txt"
 
-fit_H_G1BigBrain = analysis_fun.run_ancova(G1_BigBrain_concatanated, 
+fit_H_G1BigBrain = analysisfun.run_ancova(G1_BigBrain_concatanated, 
                                            H_ranked, 
                                            Layer, 
                                            filename_results=file_to_save
@@ -857,7 +857,7 @@ ReceptorProfiles = X[indexes_not_nan,:]
 (MSE_of_rfe_step, 
  FeatureNames_RFE_steps, 
  FeatureScores_RFE_steps, 
- Mean_AllPredictions) = analysis_fun.custom_RFE(ReceptorProfiles, 
+ Mean_AllPredictions) = analysisfun.custom_RFE(ReceptorProfiles, 
                                                 G1_BigBrain_reduced, 
                                                 test_size_perc=0.2, 
                                                 iterations=100, 
@@ -870,7 +870,7 @@ G1_BigBrain_reduced_null = G1_BigBrain_reduced[np.random.permutation(len(G1_BigB
 (MSE_of_rfe_step_null, 
  FeatureNames_RFE_steps_null, 
  FeatureScores_RFE_steps_null, 
- Mean_AllPredictions_null) = analysis_fun.custom_RFE(ReceptorProfiles, 
+ Mean_AllPredictions_null) = analysisfun.custom_RFE(ReceptorProfiles, 
                                                      G1_BigBrain_reduced_null, 
                                                      test_size_perc=0.2, 
                                                      iterations=100, 
