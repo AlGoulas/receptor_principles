@@ -22,7 +22,7 @@ results_folder = Path("/Users/.../receptor-principles/results")
 data_folder = Path("/Users/.../receptor-principles/data")
 ```
 # Citation
-Alexandros Goulas, Jean-Pierre Changeux, Konrad Wagstyl, Katrin Amunts, Nicola Palomero-Gallagher, Claus C Hilgetag (2020) **The natural axis of transmitter receptor distribution in the human cerebral cortex.** bioRxiv https://doi.org/10.1101/2020.09.28.316646 
+Alexandros Goulas, Jean-Pierre Changeux, Konrad Wagstyl, Katrin Amunts, Nicola Palomero-Gallagher, Claus C Hilgetag (2020) **The natural axis of transmitter receptor distribution in the human cerebral cortex.** Proceedings of the National Academy of Sciences USA https://doi.org/10.1073/pnas.2020574118 
 
 # Data
 
