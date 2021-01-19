@@ -24,6 +24,23 @@ data_folder = Path("/Users/.../receptor-principles/data")
 # Citation
 Alexandros Goulas, Jean-Pierre Changeux, Konrad Wagstyl, Katrin Amunts, Nicola Palomero-Gallagher, Claus C Hilgetag (2020) **The natural axis of transmitter receptor distribution in the human cerebral cortex.** Proceedings of the National Academy of Sciences USA https://doi.org/10.1073/pnas.2020574118 
 
+```
+@article {Goulase2021,
+	author = {Goulas, Alexandros and Changeux, Jean-Pierre and Wagstyl, Konrad and Amunts, Katrin and Palomero-Gallagher, Nicola and Hilgetag, Claus C.},
+	title = {The natural axis of transmitter receptor distribution in the human cerebral cortex},
+	volume = {118},
+	number = {3},
+	elocation-id = {e2020574118},
+	year = {2021},
+	doi = {10.1073/pnas.2020574118},
+	publisher = {National Academy of Sciences},
+	issn = {0027-8424},
+	URL = {https://www.pnas.org/content/118/3/e2020574118},
+	eprint = {https://www.pnas.org/content/118/3/e2020574118.full.pdf},
+	journal = {Proceedings of the National Academy of Sciences}
+}
+```
+
 # Data
 
 The receptor data are freely available from the following publication:
